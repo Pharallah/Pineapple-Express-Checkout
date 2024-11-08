@@ -53,7 +53,7 @@ class Order(db.Model, SerializerMixin):
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Order ID {self.id}>'
+        return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}>'
 
 
 class OrderItem(db.Model, SerializerMixin):

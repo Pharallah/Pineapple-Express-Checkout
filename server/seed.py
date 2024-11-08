@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import randint, choice as rc
+from random import random, randint, uniform, choice as rc
 
 # Remote library imports
 from faker import Faker
+from datetime import datetime, timedelta
 
 # Local imports
 from app import app
@@ -29,11 +30,15 @@ customers = [
     }
 ]
 
+def price_randomizer():
+    random_price = uniform(1.0, 100.0)
+    rounded_price = round(random_price, 2)
+    return rounded_price
+
 def create_customers():
     seeded_customers = []
 
     for customer in customers:
-        print(f"Processing customer: {customer['username']}")
         new_customer = Customer(
             username=customer['username'],
             email=customer['email']
@@ -44,7 +49,30 @@ def create_customers():
     return seeded_customers
 
 def create_orders():
-    pass
+    new_orders = []
+
+    customer_id = rc([customer.id for customer in Customer.query.all()])
+    order_type = ['Catering', 'Take-Out']
+
+    # Generates a random pick_up time an hour ahead of datetime.now()
+    now = datetime.now()
+    random_seconds = randint(0, 3600)  # 3600 seconds in an hour
+    random_time_delta = timedelta(seconds=random_seconds)
+    random_datetime = now + random_time_delta
+
+    valid_order_status = ['In Cart', 'Pending', 'Order Placed']
+
+    for _ in range(10):
+        new_order = Order(
+            customer_id=customer_id,
+            order_type=rc(order_type),
+            pickup_time=random_datetime,
+            total_price=price_randomizer(),
+            order_status=rc(valid_order_status)
+        )
+        new_orders.append(new_order)
+
+    return new_orders
 
 def create_order_items():
     pass
@@ -61,7 +89,7 @@ if __name__ == '__main__':
         print("Starting seed...")
         # Seed code goes here!
         Customer.query.delete()
-        # Order.query.delete()
+        Order.query.delete()
         # OrderItem.delete()
         # Category.query.delete()
         # Item.query.delete()
@@ -71,10 +99,10 @@ if __name__ == '__main__':
         db.session.add_all(customers)
         db.session.commit()
 
-        # print("Seeding Orders...")
-        # orders = create_orders()
-        # db.session.add_all(orders)
-        # db.session.commit()
+        print("Seeding Orders...")
+        orders = create_orders()
+        db.session.add_all(orders)
+        db.session.commit()
 
         # print("Seeding OrderItems...")
         # order_items = create_order_items()
