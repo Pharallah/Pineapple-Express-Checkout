@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import random, randint, uniform, choice as rc
+from random import randint, uniform, choice as rc
 
 # Remote library imports
 from faker import Faker
@@ -35,6 +35,25 @@ def price_randomizer():
     rounded_price = round(random_price, 2)
     return rounded_price
 
+def pickup_time_randomizer():
+    # Current time
+    now = datetime.now()
+
+    # Generate a random number of minutes and seconds, ensuring at least 10 minutes in the future
+    min_minutes = 10
+    max_minutes = 59
+
+    random_minutes = randint(min_minutes, max_minutes)  # Between 10 and 59 minutes
+    random_seconds = randint(0, 59)  # Up to 59 seconds
+
+    # Create a time delta with the random minutes and seconds
+    random_time_delta = timedelta(minutes=random_minutes, seconds=random_seconds)
+
+    # Add the time delta to the current time
+    random_datetime = now + random_time_delta
+
+    return random_datetime
+
 def create_customers():
     seeded_customers = []
 
@@ -51,22 +70,15 @@ def create_customers():
 def create_orders():
     new_orders = []
 
-    customer_id = rc([customer.id for customer in Customer.query.all()])
+    customer_id = [customer.id for customer in Customer.query.all()]
     order_type = ['Catering', 'Take-Out']
-
-    # Generates a random pick_up time an hour ahead of datetime.now()
-    now = datetime.now()
-    random_seconds = randint(0, 3600)  # 3600 seconds in an hour
-    random_time_delta = timedelta(seconds=random_seconds)
-    random_datetime = now + random_time_delta
-
     valid_order_status = ['In Cart', 'Pending', 'Order Placed']
 
     for _ in range(10):
         new_order = Order(
-            customer_id=customer_id,
+            customer_id=rc(customer_id),
             order_type=rc(order_type),
-            pickup_time=random_datetime,
+            pickup_time=pickup_time_randomizer(),
             total_price=price_randomizer(),
             order_status=rc(valid_order_status)
         )
