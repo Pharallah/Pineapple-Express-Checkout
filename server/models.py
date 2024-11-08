@@ -17,13 +17,13 @@ class Customer(db.Model, SerializerMixin):
     first_name = db.Column(db.String, nullable=True)
     last_name = db.Column(db.String, nullable=True)
     phone_number = db.Column(db.String, nullable=True, unique=True)
-    created_at = db.Column(db.DateTime, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
     orders = db.relationship('Order', back_populates='customer', cascade='all, delete-orphan')
 
     @hybrid_property
     def password_hash(self):
-        return self._password_hash
+        raise Exception('Password hashes may not be viewed.')
     
     @password_hash.setter
     def password_hash(self, password):
@@ -35,7 +35,7 @@ class Customer(db.Model, SerializerMixin):
         return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
 
     def __repr__(self):
-        return f'Customer {self.username}, ID {self.id}'
+        return f'<Customer {self.username}, ID {self.id}>'
 
 
 class Order(db.Model, SerializerMixin):
@@ -53,7 +53,7 @@ class Order(db.Model, SerializerMixin):
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'Order ID {self.id}'
+        return f'<Order ID {self.id}>'
 
 
 class OrderItem(db.Model, SerializerMixin):
@@ -66,10 +66,10 @@ class OrderItem(db.Model, SerializerMixin):
     special_instructions = db.Column(db.String, nullable=False, default="")
 
     order = db.relationship('Order', back_populates='order_items')
-    item = db.relationship('Item', back_populates='items')
+    item = db.relationship('Item', back_populates='order_items')
 
     def __repr__(self):
-        return f'OrderItem ID {self.id}'
+        return f'<OrderItem ID {self.id}>'
 
 
 class Category(db.Model, SerializerMixin):
@@ -84,7 +84,7 @@ class Category(db.Model, SerializerMixin):
     items = db.relationship('Item', back_populates='category', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'Category {self.name}, ID {self.id}'
+        return f'<Category {self.name}, ID {self.id}>'
 
 
 class Item(db.Model, SerializerMixin):
@@ -97,10 +97,11 @@ class Item(db.Model, SerializerMixin):
     image = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=False, default="")
     price = db.Column(db.Numeric(10, 2), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
 
     category = db.relationship('Category', back_populates='items')
     order_items = db.relationship('OrderItem', back_populates='item')
 
     def __repr__(self):
-        return f'Item Name: {self.name}, ID {self.id}'
+        return f'<Item Name: {self.name}, ID {self.id}>'
 

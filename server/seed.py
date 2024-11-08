@@ -14,18 +14,18 @@ customers = [
     {
         'username': 'Pharallah',
         'email': 'pharallah@gmail.com',
-        'password': 'asflkjasf123'
+        'password': 'Asflkjasf123!'
     },
     {
         'username': 'theERhusie',
         'email': 'thaerhusie@gmail.com',
-        'password': 'asjldghads9973'
+        'password': 'Asjldghads9973!'
 
     },
     {
         'username': 'PepperoniViceroy',
         'email': 'pepperoniviceroy@gmail.com',
-        'password': 'nbouteb082752'
+        'password': 'Nbouteb082752!'
     }
 ]
 
@@ -33,15 +33,15 @@ def create_customers():
     seeded_customers = []
 
     for customer in customers:
+        print(f"Processing customer: {customer['username']}")
         new_customer = Customer(
-            username=customer.username,
-            email=customer.email
+            username=customer['username'],
+            email=customer['email']
         )
-        new_customer.password_hash = customer.password
+        new_customer.password_hash = customer['password']
         seeded_customers.append(new_customer)
 
-    db.session.add_all(seeded_customers)
-    db.session.commit()    
+    return seeded_customers
 
 def create_orders():
     pass
