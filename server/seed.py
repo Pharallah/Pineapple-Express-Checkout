@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 # Local imports
 from app import app
 from models import db, Customer, Order, OrderItem, Category, Item
+from items import menu_items, categories
 
 customers = [
     {
@@ -29,6 +30,7 @@ customers = [
         'password': 'Nbouteb082752!'
     }
 ]
+
 
 def price_randomizer():
     random_price = uniform(1.0, 100.0)
@@ -87,13 +89,52 @@ def create_orders():
     return new_orders
 
 def create_order_items():
-    pass
+    new_order_items = []
+    item_id = [item.id for item in Item.query.all()]
+    order_id = [order.id for order in Order.query.all()]
+
+    for _ in range(20):
+        new_order_item = OrderItem(
+            item_id=rc(item_id),
+            order_id=rc(order_id),
+            quantity=randint(1, 5),
+            special_instructions=""
+        )
+        # I THINK SPECIAL_INSTRUCTIONS IS NOT WORKING
+        new_order_items.append(new_order_item)
+
+    return new_order_items
 
 def create_categories():
-    pass
+    seeded_categories = []
+
+    for category in categories:
+        new_category = Category(
+            name=category,
+            description=""
+        )
+        seeded_categories.append(new_category)
+    
+    return seeded_categories
+
 
 def create_items():
-    pass
+    items = []
+
+    for item in menu_items:
+        category = Category.query.filter(Category.name == item['category']).first()
+        category_id = category.id
+
+        new_item = Item(
+            name=item['item_name'],
+            description=item['description'],
+            price=item['price'],
+            category_id=category_id
+        )
+        items.append(new_item)
+
+    return items
+
 
 if __name__ == '__main__':
     fake = Faker()
@@ -102,9 +143,9 @@ if __name__ == '__main__':
         # Seed code goes here!
         Customer.query.delete()
         Order.query.delete()
-        # OrderItem.delete()
-        # Category.query.delete()
-        # Item.query.delete()
+        OrderItem.query.delete()
+        Category.query.delete()
+        Item.query.delete()
 
         print("Seeding Customers...")
         customers = create_customers()
@@ -116,17 +157,19 @@ if __name__ == '__main__':
         db.session.add_all(orders)
         db.session.commit()
 
-        # print("Seeding OrderItems...")
-        # order_items = create_order_items()
-        # db.session.add_all(order_items)
-        # db.session.commit()
+        print("Seeding Categories...")
+        categories = create_categories()
+        db.session.add_all(categories)
+        db.session.commit()
 
-        # print("Seeding Categories...")
-        # categories = create_categories()
-        # db.session.add_all(categories)
-        # db.session.commit()
+        print("Seeding Items...")
+        items = create_items()
+        db.session.add_all(items)
+        db.session.commit()
 
-        # print("Seeding Items...")
-        # items = create_items()
-        # db.session.add_all(items)
-        # db.session.commit()
+        print("Seeding OrderItems...")
+        order_items = create_order_items()
+        db.session.add_all(order_items)
+        db.session.commit()
+
+        print("Seed Successful!!!")

@@ -76,9 +76,7 @@ class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, 
-                    #  nullable=False, 
-                     unique=True)
+    name = db.Column(db.String, nullable=False, unique=True)
     description = db.Column(db.String, nullable=False, default="")
 
     items = db.relationship('Item', back_populates='category', cascade='all, delete-orphan')
@@ -91,9 +89,7 @@ class Item(db.Model, SerializerMixin):
     __tablename__ = "items"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String, 
-                    #  nullable=False, 
-                     unique=True)
+    name = db.Column(db.String, nullable=False, unique=True)
     image = db.Column(db.String, nullable=True)
     description = db.Column(db.String, nullable=False, default="")
     price = db.Column(db.Numeric(10, 2), nullable=False)
