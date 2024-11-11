@@ -53,7 +53,7 @@ class Order(db.Model, SerializerMixin):
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}>'
+        return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}, Total Price: {self.total_price}>'
 
 
 class OrderItem(db.Model, SerializerMixin):
@@ -69,7 +69,7 @@ class OrderItem(db.Model, SerializerMixin):
     item = db.relationship('Item', back_populates='order_items')
 
     def __repr__(self):
-        return f'<OrderItem ID {self.id}>'
+        return f'<OrderItem ID {self.id} | Item: {self.item.name} | Quantity: {self.quantity}>'
 
 
 class Category(db.Model, SerializerMixin):
@@ -82,7 +82,7 @@ class Category(db.Model, SerializerMixin):
     items = db.relationship('Item', back_populates='category', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Category {self.name}, ID {self.id}>'
+        return f'<ID {self.id} | Category {self.name}>'
 
 
 class Item(db.Model, SerializerMixin):
@@ -99,5 +99,5 @@ class Item(db.Model, SerializerMixin):
     order_items = db.relationship('OrderItem', back_populates='item')
 
     def __repr__(self):
-        return f'<Item Name: {self.name}, ID {self.id}>'
+        return f'<ID {self.id} | Item Name: {self.name} | Price: {self.price}>'
 
