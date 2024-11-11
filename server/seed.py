@@ -63,15 +63,15 @@ def create_orders():
     new_orders = []
     for customer in customers:
         # Random number of Orders generated for each Customer
-        # rand_int = randint(1, 5)
-        # for _ in range(rand_int):
-        new_order = Order(
-            customer_id=customer.id,
-            order_type=rc(order_type),
-            pickup_time=pickup_time_randomizer(),
-            order_status=rc(valid_order_status)
-        )
-        new_orders.append(new_order)
+        rand_int = randint(1, 5)
+        for _ in range(rand_int):
+            new_order = Order(
+                customer_id=customer.id,
+                order_type=rc(order_type),
+                pickup_time=pickup_time_randomizer(),
+                order_status=rc(valid_order_status)
+            )
+            new_orders.append(new_order)
 
     return new_orders
 
