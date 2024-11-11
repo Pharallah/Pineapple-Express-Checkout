@@ -17,7 +17,6 @@ def pickup_time_randomizer():
     # Generate a random number of minutes and seconds, ensuring at least 10 minutes in the future
     min_minutes = 10
     max_minutes = 59
-
     random_minutes = randint(min_minutes, max_minutes)  # Between 10 and 59 minutes
     random_seconds = randint(0, 59)  # Up to 59 seconds
 
