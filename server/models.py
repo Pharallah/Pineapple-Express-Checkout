@@ -47,13 +47,14 @@ class Order(db.Model, SerializerMixin):
     order_type = db.Column(db.String, nullable=False)
     pickup_time = db.Column(db.DateTime, nullable=False)
     total_price = db.Column(db.Numeric(10, 2), nullable=False, default=0.00)
+    number_of_items = db.Column(db.Integer, nullable=False, default=0)
     order_status = db.Column(db.String, nullable=False, default='In Cart')
 
     customer = db.relationship('Customer', back_populates='orders')
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
 
     def __repr__(self):
-        return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}, Total Price: {self.total_price}>'
+        return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}, # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
 
 
 class OrderItem(db.Model, SerializerMixin):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import randint, uniform, choices, choice as rc
+from random import randint, uniform, sample, choices, choice as rc
 
 # Remote library imports
 from faker import Faker
@@ -62,44 +62,47 @@ def create_orders():
 
     new_orders = []
     for customer in customers:
-        rand_int = randint(1, 5)
-        for _ in range(rand_int):
-            new_order = Order(
-                customer_id=customer.id,
-                order_type=rc(order_type),
-                pickup_time=pickup_time_randomizer(),
-                order_status=rc(valid_order_status)
-            )
-            new_orders.append(new_order)
+        # Random number of Orders generated for each Customer
+        # rand_int = randint(1, 5)
+        # for _ in range(rand_int):
+        new_order = Order(
+            customer_id=customer.id,
+            order_type=rc(order_type),
+            pickup_time=pickup_time_randomizer(),
+            order_status=rc(valid_order_status)
+        )
+        new_orders.append(new_order)
 
     return new_orders
 
 def create_order_items(): 
     items = [item for item in Item.query.all()]
     orders = [order for order in Order.query.all()]
-
-    # For each order_id(ALL)
-    new_order_items = [] 
+    
+    new_order_items = []
     for order in orders:
-        # Generate a rand num of items to turn into OrderItems
-        rand_int = randint(1, 5)
-        item_list = choices(items, k=rand_int)
-        
-        # Creates random sentences for special_instructions
-        random_sentences_list = choices(fake_sentences, k=rand_int)
-        joined_sentences = ' '.join(random_sentences_list)
+        # Randomly select a number of UNIQUE items to be converted into OrderItems
+        rand_int = randint(2, 7)
+        item_list = sample(items, k=rand_int)
+
         for item in item_list:
+            order.number_of_items += 1
+            db.session.commit()
+            # Creates random sentences for special_instructions
+            random_sentences_list = choices(fake_sentences, k=rand_int)
+            joined_sentences = ' '.join(random_sentences_list)
+            
             new_order_item = OrderItem(
                 item_id=item.id,
                 order_id=order.id,
                 quantity=randint(1, 4),
-                special_instructions=f'{joined_sentences}'
+                special_instructions=joined_sentences
             )
             
             price_updater(item.id, order.id, new_order_item.quantity)
 
             new_order_items.append(new_order_item)
-
+            
     return new_order_items
 
 if __name__ == '__main__':

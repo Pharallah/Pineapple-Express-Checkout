@@ -2,7 +2,7 @@ from faker import Faker
 
 fake = Faker()
 
-fake_sentences = fake.paragraphs()
+fake_sentences = fake.sentences()
 
 customers = [
     {
