@@ -9,6 +9,7 @@ from config import db, bcrypt
 
 class Customer(db.Model, SerializerMixin):
     __tablename__ = "customers"
+    serialize_rules = ('-orders.customer', '-_password_hash')
 
     id = db.Column(db.Integer, primary_key=True)
     username= db.Column(db.String, nullable =False, unique=True)
@@ -40,6 +41,7 @@ class Customer(db.Model, SerializerMixin):
 
 class Order(db.Model, SerializerMixin):
     __tablename__ = "orders"
+    serialize_rules = ('-customer.orders', '-order_items.order')
 
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
@@ -53,12 +55,14 @@ class Order(db.Model, SerializerMixin):
     customer = db.relationship('Customer', back_populates='orders')
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
 
+
     def __repr__(self):
         return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}, # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
 
 
 class OrderItem(db.Model, SerializerMixin):
     __tablename__ = "order_items"
+    serialize_rules = ('-order.order_items', '-item.order_items')
 
     id = db.Column(db.Integer, primary_key=True)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'), nullable=False)
@@ -75,6 +79,7 @@ class OrderItem(db.Model, SerializerMixin):
 
 class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
+    serialize_rules = ('-items.category',)
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
@@ -88,6 +93,7 @@ class Category(db.Model, SerializerMixin):
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = "items"
+    serialize_rules = ('-category.items', '-order_items.item')
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)
