@@ -86,8 +86,8 @@ def create_order_items():
         item_list = sample(items, k=rand_int)
 
         for item in item_list:
-            order.number_of_items += 1
-            db.session.commit()
+            # order.number_of_items += 1
+            # db.session.commit()
             # Creates random sentences for special_instructions
             random_sentences_list = choices(fake_sentences, k=rand_int)
             joined_sentences = ' '.join(random_sentences_list)
@@ -99,7 +99,7 @@ def create_order_items():
                 special_instructions=joined_sentences
             )
             
-            price_updater(item.id, order.id, new_order_item.quantity)
+            # price_updater(item.id, order.id, new_order_item.quantity)
 
             new_order_items.append(new_order_item)
             
@@ -143,6 +143,7 @@ if __name__ == '__main__':
 
         print("Seed Successful!!!")
 
+        breakpoint()
 
 
 # ORDER OF CREATION
