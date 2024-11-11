@@ -3,7 +3,7 @@
 # Standard library imports
 
 # Remote library imports
-from flask import request
+from flask import request, make_response
 from flask_restful import Resource
 
 # Local imports
@@ -19,7 +19,15 @@ def index():
 
 class Customers(Resource):
     def get(self):
-        customers = [customer.to_dict() for customer in Customer.query.all()]
+        customers = [customer.to_dict(rules=('-_password_hash', '-orders')) for customer in Customer.query.all()]
+
+        if customers:
+            response = make_response(
+                customers, 200
+            )
+            return response
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
 
     def post(self):
         pass
@@ -88,6 +96,8 @@ class ItemsById(Resource):
     def delete(self):
         pass
 
+
+api.add_resource(Customers, '/customers')
 
 
 if __name__ == '__main__':
