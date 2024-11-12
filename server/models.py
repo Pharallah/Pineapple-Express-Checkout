@@ -3,7 +3,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
 from validate_email_address import validate_email
 from sqlalchemy.ext.hybrid import hybrid_property
-from datetime import datetime
+from datetime import datetime, timedelta
 import re
 
 from config import db, bcrypt
@@ -121,7 +121,69 @@ class Order(db.Model, SerializerMixin):
     @hybrid_property
     def total_price(self):
         return sum(order_item.item.price * order_item.quantity for order_item in self.order_items)
+    
+    @validates('customer_id')
+    def validates_customer_id(self, key, id):
+        customer = Customer.query.filter(Customer.id == id).first()
+    
+        if id is None:
+            raise ValueError(f'Must provide a customer ID.')
+        
+        if not customer:
+            raise ValueError(f'No customer by that ID found in database,')
+            
+        return id
+    
+    @validates('created_at')
+    def validate_created_at(self, key, created_at):
+        if not isinstance(created_at, datetime):
+            raise ValueError('Created at must be a valid datetime object.')
+        if created_at > datetime.now():
+            raise ValueError('Created at cannot be set to a future date.')
+        return created_at
+    
+    @validates('order_type')
+    def validate_order_type(self, key, order_type):
+        valid_order_types = ['Catering', 'Take-Out']
 
+        if order_type is None:
+            raise ValueError('Order Type must be specified')
+        
+        if order_type not in valid_order_types:
+            raise ValueError('Must be a valid order type')
+        
+        return order_type
+    
+    @validates('pickup_time')
+    def validate_pickup_time(self, key, pickup_time):
+        if not isinstance(pickup_time, datetime):
+            raise ValueError('Pickup time must be a valid datetime object.')
+
+        now = datetime.now()
+
+        if self.order_type == 'Catering':
+            if pickup_time < now + timedelta(hours=24):
+                raise ValueError('For Catering orders, pickup time must be at least 24 hours in advance.')
+        elif self.order_type == 'Take-Out':
+            if pickup_time < now + timedelta(minutes=10):
+                raise ValueError('For Take-Out orders, pickup time must be made at least 10 minutes in advance.')
+            if pickup_time > now + timedelta(hours=2):
+                raise ValueError('For Take-Out orders, pickup time cannot be more than 2 hours in the future.')
+
+        return pickup_time
+    
+    @validates('order_status')
+    def validate_order_status(self, key, order_status):
+        valid_order_status = ['In Cart', 'Order Placed']
+
+        if order_status is None:
+            raise ValueError('Order Status must be specified')
+        
+        if order_status not in valid_order_status:
+            raise ValueError('Must be a valid order status')
+        
+        return order_status
+    
     def __repr__(self):
         return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}, # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
 
@@ -138,6 +200,40 @@ class OrderItem(db.Model, SerializerMixin):
 
     order = db.relationship('Order', back_populates='order_items')
     item = db.relationship('Item', back_populates='order_items')
+
+    @validates('item_id', 'order_id')
+    def validates_foreign_keys(self, key, id):
+        if id is None:
+            raise ValueError(f'{key.replace("_", " ").title()} cannot be None.')
+        
+        if key == 'item_id':
+            item_in_db = Item.query.filter(Item.id == id).first()
+            if not item_in_db:
+                raise ValueError(f'No item by that ID found in database.')
+        
+        if key == 'order_id':
+            order_in_db = Order.query.filter(Order.id == id).first()
+            if not order_in_db:
+                raise ValueError(f'No order by that ID found in database.')
+            
+        return id
+
+    @validates('quantity')
+    def validates_item_quantities(self, key, quantity):
+        
+        if quantity is None:
+            raise ValueError(f'A numeric value for quantity must be provided.')
+        
+        if not isinstance(quantity, int):
+            raise ValueError(f'{key} must be a valid integer.')
+
+        return quantity
+    
+    @validates('special_instructions')
+    def validate_special_instructions(self, key, value):
+        if not isinstance(value, str):
+            raise ValueError("Special instructions must be a string.")
+        return value
 
     def __repr__(self):
         return f'<OrderItem ID {self.id} | Item: {self.item.name} | Quantity: {self.quantity}>'

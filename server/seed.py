@@ -2,10 +2,10 @@
 
 # Standard library imports
 from random import randint, uniform, sample, choices, choice as rc
+from datetime import datetime, timedelta
 
 # Remote library imports
 from faker import Faker
-from datetime import datetime, timedelta
 
 # Local imports
 from app import app
@@ -55,20 +55,49 @@ def create_items():
 
     return items
 
+# def create_orders():
+#     order_type = ['Catering', 'Take-Out']
+#     valid_order_status = ['In Cart', 'Pending', 'Order Placed']
+#     customers = [customer for customer in Customer.query.all()]
+
+#     new_orders = []
+#     for customer in customers:
+#         # Random number of Orders generated for each Customer
+#         rand_int = randint(1, 5)
+#         for _ in range(rand_int):
+#             new_order = Order(
+#                 customer_id=customer.id,
+#                 order_type=rc(order_type),
+#                 pickup_time=pickup_time_randomizer(),
+#                 order_status=rc(valid_order_status)
+#             )
+#             new_orders.append(new_order)
+
+#     return new_orders
+
 def create_orders():
-    order_type = ['Catering', 'Take-Out']
+    order_type_options = ['Catering', 'Take-Out']
     valid_order_status = ['In Cart', 'Pending', 'Order Placed']
-    customers = [customer for customer in Customer.query.all()]
+    customers = Customer.query.all()
 
     new_orders = []
     for customer in customers:
         # Random number of Orders generated for each Customer
         rand_int = randint(1, 5)
         for _ in range(rand_int):
+            order_type = rc(order_type_options)
+
+            if order_type == 'Catering':
+                # Ensure pickup time is at least 24 hours in the future
+                pickup_time = datetime.now() + timedelta(hours=randint(24, 48))
+            else:  # Take-Out
+                # Ensure pickup time is between 10 minutes and 2 hours in the future
+                pickup_time = datetime.now() + timedelta(minutes=randint(10, 120))
+
             new_order = Order(
                 customer_id=customer.id,
-                order_type=rc(order_type),
-                pickup_time=pickup_time_randomizer(),
+                order_type=order_type,
+                pickup_time=pickup_time,
                 order_status=rc(valid_order_status)
             )
             new_orders.append(new_order)
@@ -82,7 +111,7 @@ def create_order_items():
     new_order_items = []
     for order in orders:
         # Randomly select a number of UNIQUE items to be converted into OrderItems
-        rand_int = randint(2, 7)
+        rand_int = randint(1, 5)
         item_list = sample(items, k=rand_int)
 
         for item in item_list:
@@ -143,16 +172,7 @@ if __name__ == '__main__':
 
         print("Seed Successful!!!")
 
-        breakpoint()
 
 
-# ORDER OF CREATION
-# 1. CUSTOMER 
-# 2. CATEGORY
-# 2. ITEM
-# 3. ORDER -> ORDER ITEM
-# 4. 
-
-# CATEGORY => ITEM => 
 
 
