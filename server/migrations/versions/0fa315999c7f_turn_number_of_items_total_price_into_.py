@@ -23,6 +23,11 @@ def upgrade():
         batch_op.drop_column('total_price')
         batch_op.drop_column('number_of_items')
 
+    batch_op.alter_column(
+            'created_at',
+            server_default=sa.text("(NOW() AT TIME ZONE 'UTC')")
+        )
+
     # ### end Alembic commands ###
 
 

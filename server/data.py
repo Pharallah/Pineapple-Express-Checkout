@@ -26,12 +26,11 @@ customers = [
 categories = [
     "Parilya Rice Bowl Classics",
     "Lumpia (Filipino Egg Rolls)",
-    "Noodles & Rice / Pansit at Kanin",
+    "Noodles & Rice",
     "Skewers & Wings",
     "Vegetarian/Vegan Delights",
-    "Parilya Bakery / Panaderya",
-    "Parilya Proteins (Meat-Only)",
-    "Drinks / Inumin"
+    "Parilya Bakery",
+    "Drinks"
 ]
 
 menu_items = [
@@ -83,22 +82,22 @@ menu_items = [
     {"item_name": "Pork Pancit", 
      "description": "Stir-fried noodles with tender pork and vegetables, garnished with scallions and served with a lemon wedge.",
      "price": 15.00,
-     "category": "Noodles & Rice / Pansit at Kanin"},
+     "category": "Noodles & Rice"},
 
     {"item_name": "Vegetarian Pancit", 
      "description": "Stir-fried noodles with crisp vegetables, garnished with scallions and served with a lemon wedge.",
      "price": 12.00,
-     "category": "Noodles & Rice / Pansit at Kanin"},
+     "category": "Noodles & Rice"},
 
     {"item_name": "Garlic Fried Rice", 
      "description": "Sautéed with garlic and soy sauce for a rich, savory flavor.",
      "price": 5.00,
-     "category": "Noodles & Rice / Pansit at Kanin"},
+     "category": "Noodles & Rice"},
 
     {"item_name": "Steamed White Rice", 
      "description": "Fluffy, perfectly steamed, and gluten-free.",
      "price": 5.00,
-     "category": "Noodles & Rice / Pansit at Kanin"},
+     "category": "Noodles & Rice"},
 
     {"item_name": "BBQ Skewer", 
      "description": "An 8oz Filipino-style BBQ skewer (choice of chicken or pork) glazed with Parilya BBQ sauce.",
@@ -118,35 +117,35 @@ menu_items = [
     {"item_name": "Ube Cheesecake Cookie", 
      "description": "A chewy vanilla-cinnamon sugar cookie with a soft ube cheesecake center.",
      "price": 6.00,
-     "category": "Parilya Bakery / Panaderya"},
+     "category": "Parilya Bakery"},
 
     {"item_name": "Brown-Butter Miso Chocolate Chip Cookie", 
      "description": "A cookie with brown butter, miso dough, semi-sweet chocolate chips, topped with house-made English toffee.",
      "price": 5.00,
-     "category": "Parilya Bakery / Panaderya"},
+     "category": "Parilya Bakery"},
 
     {"item_name": "Calamansi Bar", 
      "description": "A twist on a lemon bar using Calamansi lime with a vanilla shortbread crust and tangy calamansi curd.",
      "price": 3.25,
-     "category": "Parilya Bakery / Panaderya"},
+     "category": "Parilya Bakery"},
 
     {"item_name": "Milo Ganache Brownie", 
      "description": "A fudgy mini bundt brownie topped with malt-milk chocolate ganache.",
      "price": 7.50,
-     "category": "Parilya Bakery / Panaderya"},
+     "category": "Parilya Bakery"},
 
     {"item_name": "FOCO Coconut Juice", 
      "description": "Natural isotonic beverage from young green coconuts.",
      "price": 4.00,
-     "category": "Drinks / Inumin"},
+     "category": "Drinks"},
 
     {"item_name": "Brisk Iced Tea Lemon", 
      "description": "Lemon-flavored iced tea.",
      "price": 3.00,
-     "category": "Drinks / Inumin"},
+     "category": "Drinks"},
 
     {"item_name": "Bottled Water", 
      "description": "16.9 fl oz of bottled water.",
      "price": 2.00,
-     "category": "Drinks / Inumin"}
+     "category": "Drinks"}
 ]

@@ -1,9 +1,11 @@
 from random import randint, uniform, choice as rc
 from datetime import datetime, timedelta
-from models import db, Item, Order
 import re
 
 def price_updater(item_id, order_id, quantity):
+    from config import db
+    from models import Item, Order
+
     item = Item.query.filter(Item.id == item_id).first()
     order = Order.query.filter(Order.id == order_id).first()
 
@@ -41,3 +43,11 @@ def capitalize_sentences(paragraph):
 
         # Join the sentences back into a single string
         return ' '.join(capitalized_sentences)
+
+def is_valid_image_url(url):
+    # Check for valid image file extensions
+    valid_image_extensions = ('.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp')
+    if not url.lower().endswith(valid_image_extensions):
+        return False
+
+    return True

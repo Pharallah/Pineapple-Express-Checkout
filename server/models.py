@@ -1,12 +1,15 @@
+# Remote library imports
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
-from validate_email_address import validate_email
 from sqlalchemy.ext.hybrid import hybrid_property
-from datetime import datetime, timedelta
-import re
-from operations import capitalize_sentences
+from decimal import Decimal
+from validate_email_address import validate_email
 
+# Local imports
+import re, validators
+from datetime import datetime, timedelta, timezone
+from operations import capitalize_sentences, is_valid_image_url
 from config import db, bcrypt
 
 # Models go here!
@@ -22,7 +25,7 @@ class Customer(db.Model, SerializerMixin):
     first_name = db.Column(db.String, nullable=True)
     last_name = db.Column(db.String, nullable=True)
     phone_number = db.Column(db.String, nullable=True, unique=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
 
     orders = db.relationship('Order', back_populates='customer', cascade='all, delete-orphan')
 
@@ -71,11 +74,11 @@ class Customer(db.Model, SerializerMixin):
     
     @validates('phone_number')
     def validate_phone(self, key, phone_number):
-        if len(phone_number) != 12 or phone_number[3] != '-' or phone_number[7] != '-':
-            raise ValueError('Phone number must be in the format XXX-XXX-XXXX.')
+        # Regex pattern allows (XXX) XXX-XXXX, XXX-XXX-XXXX, +X-XXX-XXX-XXXX, etc.
+        pattern = re.compile(r'^\+?(\d{1,3})?[-.\s]?(\(?\d{3}\)?)?[-.\s]?\d{3}[-.\s]?\d{4}$')
         
-        if not (phone_number[:3].isdigit() and phone_number[4:7].isdigit() and phone_number[8:].isdigit()):
-            raise ValueError('Phone number must contain digits in the format XXX-XXX-XXXX.')
+        if not pattern.match(phone_number):
+            raise ValueError('Phone number must be in a valid format, e.g., +1-234-567-8900 or 234-567-8900.')
         
         return phone_number
     
@@ -98,7 +101,7 @@ class Customer(db.Model, SerializerMixin):
         return created_at
 
     def __repr__(self):
-        return f'<Customer {self.username}, ID {self.id}>'
+        return f'<Customer ID: {self.id} | Username: {self.username}>'
 
 
 class Order(db.Model, SerializerMixin):
@@ -107,7 +110,7 @@ class Order(db.Model, SerializerMixin):
 
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     order_type = db.Column(db.String, nullable=False)
     pickup_time = db.Column(db.DateTime, nullable=False)
     order_status = db.Column(db.String, nullable=False, default='In Cart')
@@ -128,7 +131,7 @@ class Order(db.Model, SerializerMixin):
         customer = Customer.query.filter(Customer.id == id).first()
     
         if id is None:
-            raise ValueError(f'Must provide a customer ID.')
+            raise ValueError(f'Must provide a valid customer ID.')
         
         if not customer:
             raise ValueError(f'No customer by that ID found in database,')
@@ -159,6 +162,9 @@ class Order(db.Model, SerializerMixin):
     def validate_pickup_time(self, key, pickup_time):
         if not isinstance(pickup_time, datetime):
             raise ValueError('Pickup time must be a valid datetime object.')
+        
+        if not self.order_type:
+            raise ValueError('Order type must be set before validating pickup time.')
 
         now = datetime.now()
 
@@ -175,7 +181,7 @@ class Order(db.Model, SerializerMixin):
     
     @validates('order_status')
     def validate_order_status(self, key, order_status):
-        valid_order_status = ['In Cart', 'Order Placed']
+        valid_order_status = ['In Cart', 'Pending', 'Order Placed']
 
         if order_status is None:
             raise ValueError('Order Status must be specified')
@@ -186,7 +192,7 @@ class Order(db.Model, SerializerMixin):
         return order_status
     
     def __repr__(self):
-        return f'<Order Pickup Time: {self.pickup_time}, ID {self.id}, # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
+        return f'<Order ID: {self.id} | Pickup Time: {self.pickup_time} | # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
 
 
 class OrderItem(db.Model, SerializerMixin):
@@ -221,12 +227,11 @@ class OrderItem(db.Model, SerializerMixin):
 
     @validates('quantity')
     def validates_item_quantities(self, key, quantity):
-        
         if quantity is None:
-            raise ValueError(f'A numeric value for quantity must be provided.')
+            raise ValueError('A numeric value for quantity must be provided.')
         
-        if not isinstance(quantity, int):
-            raise ValueError(f'{key} must be a valid integer.')
+        if not isinstance(quantity, int) or quantity <= 0:
+            raise ValueError('Quantity must be a positive integer.')
 
         return quantity
     
@@ -237,7 +242,7 @@ class OrderItem(db.Model, SerializerMixin):
         return capitalize_sentences(value)
 
     def __repr__(self):
-        return f'<OrderItem ID {self.id} | Item: {self.item.name} | Quantity: {self.quantity}>'
+        return f'<OrderItem ID: {self.id} | Item: {self.item.name} | Quantity: {self.quantity}>'
 
 
 class Category(db.Model, SerializerMixin):
@@ -269,7 +274,7 @@ class Category(db.Model, SerializerMixin):
     
 
     def __repr__(self):
-        return f'<ID {self.id} | Category {self.name}>'
+        return f'<Category ID: {self.id} | {self.name}>'
 
 
 class Item(db.Model, SerializerMixin):
@@ -286,6 +291,64 @@ class Item(db.Model, SerializerMixin):
     category = db.relationship('Category', back_populates='items')
     order_items = db.relationship('OrderItem', back_populates='item')
 
+    @validates('name')
+    def validates_name(self, key, name):
+        if not name:
+            raise ValueError('Must have name')
+        if not isinstance(name, str):
+            raise ValueError('Name must be a valid string')
+        if len(name) < 5:
+            raise ValueError('Name must be at least 5 characters long')
+        return name.title()
+    
+    @validates('image')
+    def validate_image(self, key, url):
+        if url is None:
+            return url  # Allow None if the column is nullable
+
+        # Check if the URL format is valid
+        if not validators.url(url):
+            raise ValueError('The provided value is not a valid URL.')
+
+        # Check for valid image file extensions
+        if not is_valid_image_url(url):
+            raise ValueError('The URL does not point to a valid image file.')
+
+        return url
+
+    @validates('description')
+    def validate_description(self, key, description):
+        if not isinstance(description, str):
+            raise ValueError("Description must be a string.")
+        
+        return capitalize_sentences(description)
+    
+    @validates('price')
+    def validate_price(self, key, price):
+        if not isinstance(price, (int, float, Decimal)):
+            raise ValueError("Price must be a number.")
+
+        if price < 0:
+            raise ValueError("Price must be a positive value.")
+
+        # Additional checks can be added here, such as ensuring price is within a certain range
+        if price > 1000:
+            raise ValueError("Price has exceeded the maximum allowed value of $1000.")
+
+        return price
+
+    @validates('category_id')
+    def validates_category(self, key, id):
+        category = Category.query.filter(Category.id == id).first()
+    
+        if id is None:
+            raise ValueError(f'Must provide a valid category ID.')
+        
+        if not category:
+            raise ValueError(f'No category by that ID found in database,')
+            
+        return id
+    
     def __repr__(self):
-        return f'<ID {self.id} | Item Name: {self.name} | Price: {self.price}>'
+        return f'<Item ID: {self.id} | Name: {self.name} | Price: {self.price}>'
 

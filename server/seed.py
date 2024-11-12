@@ -12,6 +12,7 @@ from app import app
 from models import db, Customer, Order, OrderItem, Category, Item
 from data import menu_items, categories, customers, fake_sentences
 from operations import pickup_time_randomizer, price_updater
+import logging
 
 def create_customers():
     seeded_customers = []
@@ -40,40 +41,19 @@ def create_categories():
 
 def create_items():
     items = []
-
+    
     for item in menu_items:
-        category = Category.query.filter(Category.name == item['category']).first()
-        category_id = category.id
+        category_in_db = Category.query.filter(Category.name == item["category"]).first()
 
         new_item = Item(
             name=item['item_name'],
             description=item['description'],
             price=item['price'],
-            category_id=category_id
+            category_id=category_in_db.id
         )
+        # breakpoint()
         items.append(new_item)
-
     return items
-
-# def create_orders():
-#     order_type = ['Catering', 'Take-Out']
-#     valid_order_status = ['In Cart', 'Pending', 'Order Placed']
-#     customers = [customer for customer in Customer.query.all()]
-
-#     new_orders = []
-#     for customer in customers:
-#         # Random number of Orders generated for each Customer
-#         rand_int = randint(1, 5)
-#         for _ in range(rand_int):
-#             new_order = Order(
-#                 customer_id=customer.id,
-#                 order_type=rc(order_type),
-#                 pickup_time=pickup_time_randomizer(),
-#                 order_status=rc(valid_order_status)
-#             )
-#             new_orders.append(new_order)
-
-#     return new_orders
 
 def create_orders():
     order_type_options = ['Catering', 'Take-Out']
@@ -85,9 +65,9 @@ def create_orders():
         # Random number of Orders generated for each Customer
         rand_int = randint(1, 5)
         for _ in range(rand_int):
-            order_type = rc(order_type_options)
-
-            if order_type == 'Catering':
+            type = rc(order_type_options)
+            print(type)
+            if type == 'Catering':
                 # Ensure pickup time is at least 24 hours in the future
                 pickup_time = datetime.now() + timedelta(hours=randint(24, 48))
             else:  # Take-Out
@@ -96,7 +76,7 @@ def create_orders():
 
             new_order = Order(
                 customer_id=customer.id,
-                order_type=order_type,
+                order_type=type,
                 pickup_time=pickup_time,
                 order_status=rc(valid_order_status)
             )
@@ -138,12 +118,12 @@ if __name__ == '__main__':
     fake = Faker()
     with app.app_context():
         print("Starting seed...")
-     
         Customer.query.delete()
         Order.query.delete()
         OrderItem.query.delete()
         Category.query.delete()
         Item.query.delete()
+        print('All tables deleted...')
 
         print("Seeding Customers...")
         customers = create_customers()
@@ -154,6 +134,7 @@ if __name__ == '__main__':
         categories = create_categories()
         db.session.add_all(categories)
         db.session.commit()
+        print(f"Number of categories in database: {Category.query.count()}")
 
         print("Seeding Items...")
         items = create_items()
