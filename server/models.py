@@ -1,7 +1,10 @@
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import validates
+from validate_email_address import validate_email
 from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime
+import re
 
 from config import db, bcrypt
 
@@ -22,16 +25,76 @@ class Customer(db.Model, SerializerMixin):
 
     orders = db.relationship('Order', back_populates='customer', cascade='all, delete-orphan')
 
+    def _is_valid_password(self, password):
+        if len(password) < 8:
+            return False
+        if not re.search(r'[A-Z]', password):
+            return False
+        if not re.search(r'[a-z]', password):
+            return False
+        if not re.search(r'[0-9]', password):
+            return False
+        if not re.search(r'[@$!%*?&#]', password):
+            return False
+        return True
+
     @hybrid_property
     def password_hash(self):
         raise Exception('Password hashes may not be viewed.')
     
     @password_hash.setter
     def password_hash(self, password):
+        if not self._is_valid_password(password):
+            raise ValueError("Password does not meet the security requirements.")
+        
         self._password_hash = bcrypt.generate_password_hash(password.encode('utf-8')).decode('utf-8')
 
     def authenticate(self, password):
         return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+    
+    @validates('username')
+    def validates_username(self, key, username):
+        if not username:
+            raise ValueError('Must provide a username')
+        if not isinstance(username, str):
+            raise ValueError('Username must be a valid string')
+        if len(username) < 5:
+            raise ValueError('Username must be at least 5 characters long')
+        return username
+    
+    @validates('email')
+    def validates_email(self, key, email):
+        if not validate_email(email):
+            raise ValueError('Must be a valid email address.')
+        return email
+    
+    @validates('phone_number')
+    def validate_phone(self, key, phone_number):
+        if len(phone_number) != 12 or phone_number[3] != '-' or phone_number[7] != '-':
+            raise ValueError('Phone number must be in the format XXX-XXX-XXXX.')
+        
+        if not (phone_number[:3].isdigit() and phone_number[4:7].isdigit() and phone_number[8:].isdigit()):
+            raise ValueError('Phone number must contain digits in the format XXX-XXX-XXXX.')
+        
+        return phone_number
+    
+    @validates('first_name', 'last_name')
+    def validate_name(self, key, name):
+        if not name:
+            raise ValueError(f'{key.replace("_", " ").title()} must be provided.')
+        if not name.isalpha():
+            raise ValueError(f'{key.replace("_", " ").title()} must contain only alphabetic characters.')
+        if len(name) < 2:
+            raise ValueError(f'{key.replace("_", " ").title()} must be at least 2 characters long.')
+        return name
+    
+    @validates('created_at')
+    def validate_created_at(self, key, created_at):
+        if not isinstance(created_at, datetime):
+            raise ValueError('Created at must be a valid datetime object.')
+        if created_at > datetime.now():
+            raise ValueError('Created at cannot be set to a future date.')
+        return created_at
 
     def __repr__(self):
         return f'<Customer {self.username}, ID {self.id}>'
