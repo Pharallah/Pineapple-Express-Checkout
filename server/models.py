@@ -48,7 +48,6 @@ class Customer(db.Model, SerializerMixin):
     def password_hash(self, password):
         if not self._is_valid_password(password):
             raise ValueError("Password does not meet the security requirements.")
-        
         self._password_hash = bcrypt.generate_password_hash(password.encode('utf-8')).decode('utf-8')
 
     def authenticate(self, password):
@@ -74,10 +73,8 @@ class Customer(db.Model, SerializerMixin):
     def validate_phone(self, key, phone_number):
         # Regex pattern allows (XXX) XXX-XXXX, XXX-XXX-XXXX, +X-XXX-XXX-XXXX, etc.
         pattern = re.compile(r'^\+?(\d{1,3})?[-.\s]?(\(?\d{3}\)?)?[-.\s]?\d{3}[-.\s]?\d{4}$')
-        
         if not pattern.match(phone_number):
             raise ValueError('Phone number must be in a valid format, e.g., +1-234-567-8900 or 234-567-8900.')
-        
         return phone_number
     
     @validates('first_name', 'last_name')
@@ -97,7 +94,7 @@ class Customer(db.Model, SerializerMixin):
         if created_at > datetime.now():
             raise ValueError('Created at cannot be set to a future date.')
         return created_at
-
+    
     def __repr__(self):
         return f'<Customer ID: {self.id} | Username: {self.username}>'
 
@@ -128,10 +125,8 @@ class Order(db.Model, SerializerMixin):
     @validates('customer_id')
     def validates_customer_id(self, key, id):
         customer = Customer.query.filter(Customer.id == id).first()
-    
         if id is None:
             raise ValueError(f'Must provide a valid customer ID.')
-        
         if not customer:
             raise ValueError(f'No customer by that ID found in database,')
             
@@ -211,12 +206,10 @@ class OrderItem(db.Model, SerializerMixin):
     def validates_foreign_keys(self, key, id):
         if id is None:
             raise ValueError(f'{key.replace("_", " ").title()} cannot be None.')
-        
         if key == 'item_id':
             item_in_db = Item.query.filter(Item.id == id).first()
             if not item_in_db:
                 raise ValueError(f'No item by that ID found in database.')
-        
         if key == 'order_id':
             order_in_db = Order.query.filter(Order.id == id).first()
             if not order_in_db:
@@ -228,7 +221,6 @@ class OrderItem(db.Model, SerializerMixin):
     def validates_item_quantities(self, key, quantity):
         if quantity is None:
             raise ValueError('A numeric value for quantity must be provided.')
-        
         if not isinstance(quantity, int) or quantity <= 0:
             raise ValueError('Quantity must be a positive integer.')
 
@@ -268,7 +260,6 @@ class Category(db.Model, SerializerMixin):
     def validate_description(self, key, description):
         if not isinstance(description, str):
             raise ValueError("Descriptions must be a string.")
-        
         return capitalize_sentences(description)
     
 
@@ -305,13 +296,9 @@ class Item(db.Model, SerializerMixin):
     @validates('image')
     def validate_image(self, key, url):
         if url is None:
-            return url  # Allow None if the column is nullable
-
-        # Check if the URL format is valid
+            return url  
         if not validators.url(url):
             raise ValueError('The provided value is not a valid URL.')
-
-        # Check for valid image file extensions
         if not is_valid_image_url(url):
             raise ValueError('The URL does not point to a valid image file.')
 
@@ -321,18 +308,14 @@ class Item(db.Model, SerializerMixin):
     def validate_description(self, key, description):
         if not isinstance(description, str):
             raise ValueError("Description must be a string.")
-        
         return capitalize_sentences(description)
     
     @validates('price')
     def validate_price(self, key, price):
         if not isinstance(price, (int, float, Decimal)):
             raise ValueError("Price must be a number.")
-
         if price < 0:
             raise ValueError("Price must be a positive value.")
-
-        # Additional checks can be added here, such as ensuring price is within a certain range
         if price > 1000:
             raise ValueError("Price has exceeded the maximum allowed value of $1000.")
 
@@ -341,13 +324,10 @@ class Item(db.Model, SerializerMixin):
     @validates('category_id')
     def validates_category(self, key, id):
         category = Category.query.filter(Category.id == id).first()
-    
         if id is None:
             raise ValueError(f'Must provide a valid category ID.')
-        
         if not category:
             raise ValueError(f'No category by that ID found in database,')
-            
         return id
     
     def __repr__(self):

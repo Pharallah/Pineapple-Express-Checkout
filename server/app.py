@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
-# Standard library imports
-
 # Remote library imports
 from flask import request, make_response
 from flask_restful import Resource
+from sqlalchemy.exc import IntegrityError
 
 # Local imports
 from config import app, db, api
@@ -30,7 +29,29 @@ class Customers(Resource):
             return {'error': 'Unexpected Server Error'}, 500
 
     def post(self):
-        pass
+        json = request.get_json()
+    
+        try:
+            new_customer = Customer(
+                username=json['username'],
+                email=json['email'],
+            )
+            new_customer.password_hash = json['password']
+
+            db.session.add(new_customer)
+            db.session.commit()
+
+            customer_dict = new_customer.to_dict(rules=('-_password_hash', '-orders'))
+            return make_response(customer_dict, 200)
+        
+        except IntegrityError:
+            db.session.rollback() 
+            return {'errors': 'Username or email already exists'}, 400
+        except ValueError as e:
+            return {'errors': str(e)}, 400
+        except Exception as e:
+            return {'errors': 'Failed to add item to database'}, 500
+
 
 class CustomerById(Resource):
     def get(self):
