@@ -5,6 +5,7 @@ from validate_email_address import validate_email
 from sqlalchemy.ext.hybrid import hybrid_property
 from datetime import datetime, timedelta
 import re
+from operations import capitalize_sentences
 
 from config import db, bcrypt
 
@@ -233,7 +234,7 @@ class OrderItem(db.Model, SerializerMixin):
     def validate_special_instructions(self, key, value):
         if not isinstance(value, str):
             raise ValueError("Special instructions must be a string.")
-        return value
+        return capitalize_sentences(value)
 
     def __repr__(self):
         return f'<OrderItem ID {self.id} | Item: {self.item.name} | Quantity: {self.quantity}>'
@@ -248,6 +249,24 @@ class Category(db.Model, SerializerMixin):
     description = db.Column(db.String, nullable=False, default="")
 
     items = db.relationship('Item', back_populates='category', cascade='all, delete-orphan')
+
+    @validates('name')
+    def validates_name(self, key, name):
+        if not name:
+            raise ValueError('Must have name')
+        if not isinstance(name, str):
+            raise ValueError('Name must be a valid string')
+        if len(name) < 5:
+            raise ValueError('Name must be at least 5 characters long')
+        return name.title()
+    
+    @validates('description')
+    def validate_description(self, key, description):
+        if not isinstance(description, str):
+            raise ValueError("Descriptions must be a string.")
+        
+        return capitalize_sentences(description)
+    
 
     def __repr__(self):
         return f'<ID {self.id} | Category {self.name}>'

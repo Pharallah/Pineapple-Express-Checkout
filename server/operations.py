@@ -1,6 +1,7 @@
 from random import randint, uniform, choice as rc
 from datetime import datetime, timedelta
 from models import db, Item, Order
+import re
 
 def price_updater(item_id, order_id, quantity):
     item = Item.query.filter(Item.id == item_id).first()
@@ -27,3 +28,16 @@ def pickup_time_randomizer():
     random_datetime = now + random_time_delta
 
     return random_datetime
+
+def capitalize_sentences(paragraph):
+        # Regular expression to find sentence endings
+        sentence_endings = re.compile(r'(?<=[.!?])\s+')
+
+        # Split the paragraph into sentences
+        sentences = sentence_endings.split(paragraph)
+
+        # Capitalize the first letter of each sentence
+        capitalized_sentences = [sentence[0].upper() + sentence[1:] if sentence else '' for sentence in sentences]
+
+        # Join the sentences back into a single string
+        return ' '.join(capitalized_sentences)

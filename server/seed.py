@@ -11,7 +11,7 @@ from faker import Faker
 from app import app
 from models import db, Customer, Order, OrderItem, Category, Item
 from data import menu_items, categories, customers, fake_sentences
-from calculator import pickup_time_randomizer, price_updater
+from operations import pickup_time_randomizer, price_updater
 
 def create_customers():
     seeded_customers = []
