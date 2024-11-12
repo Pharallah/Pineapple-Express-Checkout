@@ -66,7 +66,6 @@ def create_orders():
         rand_int = randint(1, 5)
         for _ in range(rand_int):
             type = rc(order_type_options)
-            print(type)
             if type == 'Catering':
                 # Ensure pickup time is at least 24 hours in the future
                 pickup_time = datetime.now() + timedelta(hours=randint(24, 48))
@@ -134,7 +133,6 @@ if __name__ == '__main__':
         categories = create_categories()
         db.session.add_all(categories)
         db.session.commit()
-        print(f"Number of categories in database: {Category.query.count()}")
 
         print("Seeding Items...")
         items = create_items()

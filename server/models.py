@@ -12,8 +12,6 @@ from datetime import datetime, timedelta, timezone
 from operations import capitalize_sentences, is_valid_image_url
 from config import db, bcrypt
 
-# Models go here!
-
 class Customer(db.Model, SerializerMixin):
     __tablename__ = "customers"
     serialize_rules = ('-orders.customer', '-_password_hash')
@@ -117,6 +115,7 @@ class Order(db.Model, SerializerMixin):
 
     customer = db.relationship('Customer', back_populates='orders')
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
+    items = association_proxy('order_items', 'item', creator=lambda item_obj: OrderItem(item=item_obj))
 
     @hybrid_property
     def number_of_items(self):
@@ -290,6 +289,8 @@ class Item(db.Model, SerializerMixin):
 
     category = db.relationship('Category', back_populates='items')
     order_items = db.relationship('OrderItem', back_populates='item')
+
+    orders = association_proxy('order_items', 'order', creator=lambda order_obj: OrderItem(order=order_obj))
 
     @validates('name')
     def validates_name(self, key, name):
