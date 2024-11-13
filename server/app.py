@@ -19,17 +19,9 @@ def index():
 
 class Customers(Resource):
     def get(self):
-        customers = [customer.to_dict(rules=('-_password_hash', '-orders')) for customer in Customer.query.all()]
+        customers = [customer.to_dict(rules=('-_password_hash', '-orders')) 
         
-        # UNCOMMENT OUT IF YOU WANT RETURNED CUSTOMER DICT'S CREATED AT TO BE FORMATTED TO HR/MIN
-
-        # customers = []
-        # for customer in Customer.query.all():
-        #     customer_dict = customer.to_dict(rules=('-_password_hash', '-orders'))
-        #     formatted_created_at = customer.created_at.strftime("%Y-%m-%d %H:%M")
-        #     customer_dict['created_at'] = formatted_created_at
-        #     customers.append(customer_dict)
-
+        for customer in Customer.query.all()]
         if customers:
             response = make_response(
                 customers, 200
@@ -40,7 +32,7 @@ class Customers(Resource):
 
     def post(self):
         json = request.get_json()
-    
+
         try:
             new_customer = Customer(
                 username=json['username'],
@@ -65,6 +57,7 @@ class Customers(Resource):
 class CustomerById(Resource):
     def get(self, id):
         customer = Customer.query.filter(Customer.id == id).first()
+        
         if not customer:
             abort(404, "Customer not found")
         return customer.to_dict(rules=('-_password_hash', '-orders')), 200
@@ -83,32 +76,32 @@ class CustomerById(Resource):
             try:
                 customer.username = json_data['username']
             except ValueError as e:
-                errors.append({'field': 'Username', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'email' in json_data:
             try:
                 customer.email = json_data['email']
             except ValueError as e:
-                errors.append({'field': 'Email', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'password' in json_data:
             try:
                 customer.password_hash = json_data['password']
             except ValueError as e:
-                errors.append({'field': 'Password', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'firstName' in json_data:
             try:
-                customer.first_name = json_data['firstName']
+                customer.first_name = custom_titled(json_data['firstName'])
             except ValueError as e:
-                errors.append({'field': 'First Name', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'lastName' in json_data:
             try:
-                customer.last_name = json_data['lastName']
+                customer.last_name = custom_titled(json_data['lastName'])
             except ValueError as e:
-                errors.append({'field': 'Last Name', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'phoneNumber' in json_data:
             try:
                 customer.phone_number = json_data['phoneNumber']
             except ValueError as e:
-                errors.append({'field': 'Phone Number', 'error': str(e)})
+                errors.append({'error': str(e)})
         if errors:
             return {'errors': errors}, 400
 
@@ -131,11 +124,13 @@ class CustomerById(Resource):
   
         db.session.delete(customer)
         db.session.commit()
+
         return {}, 204
 
 class Orders(Resource):
     def get(self):
         orders = [order.to_dict(rules=('-customer', '-order_items')) for order in Order.query.all()]
+        
         if orders:
             return make_response(orders, 200)
         else:
@@ -147,7 +142,6 @@ class Orders(Resource):
             new_order = Order(
                 customer_id=json['customerId'],
                 order_type=json['orderType'],
-                # CURRENTLY ONLY ACCEPTS DATETIME DATA THAT INCLUDES MICROSECONDS
                 pickup_time=datetime_formatter(json['pickupTime'])
             )
             db.session.add(new_order)
@@ -180,17 +174,17 @@ class OrdersById(Resource):
             try:
                 order.order_type = json['orderType']
             except ValueError as e:
-                errors.append({'field': 'Order Type', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'pickupTime' in json:
             try:
                 order.pickup_time = datetime_formatter(json['pickupTime'])
             except ValueError as e:
-                errors.append({'field': 'Pickup Time', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'orderStatus' in json:
             try:
                 order.order_status = json['orderStatus']
             except ValueError as e:
-                errors.append({'field': 'Order Status', 'error': str(e)})
+                errors.append({'error': str(e)})
         if errors:
             return {'errors': errors}, 400
 
@@ -205,7 +199,7 @@ class OrdersById(Resource):
     def delete(self, id):
         order = Order.query.filter(Order.id == id).first()
         if not order:
-            abort(404, "Customer not found")
+            abort(404, "Order not found")
         db.session.delete(order)
         db.session.commit()
         return {}, 204
@@ -260,12 +254,12 @@ class OrderItemById(Resource):
             try:
                 order_item.quantity = json['quantity']
             except ValueError as e:
-                errors.append({'field': 'Quantity', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'specialInstructions' in json:
             try:
-                order_item.special_instructions = json['specialInstructions']
+                order_item.special_instructions = capitalize_sentences(json['specialInstructions'])
             except ValueError as e:
-                errors.append({'field': 'Special Instructions', 'error': str(e)})
+                errors.append({'error': str(e)})
         if errors:
             return {'errors': errors}, 400
 
@@ -333,12 +327,12 @@ class CategoriesById(Resource):
             try:
                 category.name = custom_titled(json['name'])
             except ValueError as e:
-                errors.append({'field': 'Name', 'error': str(e)})
+                errors.append({'error': str(e)})
         if 'description' in json:
             try:
-                category.description = custom_titled(json['description'])
+                category.description = capitalize_sentences(json['description'])
             except ValueError as e:
-                errors.append({'field': 'Description', 'error': str(e)})
+                errors.append({'error': str(e)})
         if errors:
             return {'errors': errors}, 400
 
@@ -388,12 +382,65 @@ class Items(Resource):
             return {'errors': 'Failed to add Item to database'}, 500
 
 class ItemById(Resource):
-    def get(self):
-        pass
-    def patch(self):
-        pass
-    def delete(self):
-        pass
+    def get(self, id):
+        item = Item.query.filter(Item.id == id).first()
+        if not item:
+            abort(404, "Item not found")
+        return item.to_dict(rules=('-category', '-order_items')), 200
+    
+    def patch(self, id):
+        item = Item.query.filter(Item.id == id).first()
+
+        if not item:
+            abort(404, "Item not found")
+
+        json = request.get_json()
+
+        # Validate input fields
+        errors = []
+        if 'name' in json:
+            try:
+                item.name = custom_titled(json['name'])
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if 'description' in json:
+            try:
+                item.description = capitalize_sentences(json['description'])
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if 'image' in json:
+            try:
+                item.image = json['image']
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if 'price' in json:
+            try:
+                item.price = json['price']
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if 'categoryId' in json:
+            try:
+                item.category_id = custom_titled(json['categoryId'])
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if errors:
+            return {'errors': errors}, 400
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            return {'errors': 'Failed to update order item'}, 500
+
+        item_dict = item.to_dict(rules=('-category', '-order_items'))
+        return make_response(item_dict, 202)
+
+    def delete(self, id):        
+        item = Item.query.filter(Item.id == id).first()
+        if not item:
+            abort(404, "Item not found")
+        db.session.delete(item)
+        db.session.commit()
+        return {}, 204
 
 
 api.add_resource(Customers, '/customers')

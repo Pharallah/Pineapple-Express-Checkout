@@ -221,6 +221,9 @@ class OrderItem(db.Model, SerializerMixin):
             raise ValueError('A numeric value for quantity must be provided.')
         if not isinstance(quantity, int) or quantity <= 0:
             raise ValueError('Quantity must be a positive integer.')
+        
+        if quantity > 20:
+            raise ValueError('Maximum quantity of 20 has been exceeded.')
 
         return quantity
     
