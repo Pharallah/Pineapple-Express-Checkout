@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from config import app, db, api
 # Add your model imports
 from models import Customer, Order, OrderItem, Category, Item
-from operations import datetime_formatter
+from operations import datetime_formatter, custom_titled
 
 # Views go here!
 
@@ -297,7 +297,7 @@ class Categories(Resource):
         json = request.get_json()
         try:
             new_category = Category(
-                name=json['name'],
+                name=custom_titled(json['name']),
                 description=json['description']
             )
             db.session.add(new_category)
@@ -313,12 +313,51 @@ class Categories(Resource):
             return {'errors': 'Failed to add Category to database'}, 500
 
 class CategoriesById(Resource):
-    def get(self):
-        pass
-    def patch(self):
-        pass
-    def delete(self):
-        pass
+    def get(self, id):
+        category = Category.query.filter(Category.id == id).first()
+        if not category:
+            abort(404, "Category not found")
+        return category.to_dict(rules=('-items',)), 200
+    
+    def patch(self, id):
+        category = Category.query.filter(Category.id == id).first()
+
+        if not category:
+            abort(404, "Category not found")
+
+        json = request.get_json()
+
+        # Validate input fields
+        errors = []
+        if 'name' in json:
+            try:
+                category.name = custom_titled(json['name'])
+            except ValueError as e:
+                errors.append({'field': 'Name', 'error': str(e)})
+        if 'description' in json:
+            try:
+                category.description = custom_titled(json['description'])
+            except ValueError as e:
+                errors.append({'field': 'Description', 'error': str(e)})
+        if errors:
+            return {'errors': errors}, 400
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            return {'errors': 'Failed to update order item'}, 500
+
+        category_dict = category.to_dict(rules=('-items',))
+        return make_response(category_dict, 202)
+
+    def delete(self, id):        
+        category = Category.query.filter(Category.id == id).first()
+        if not category:
+            abort(404, "Category not found")
+        db.session.delete(category)
+        db.session.commit()
+        return {}, 204
+
 
 class Items(Resource):
     def get(self):

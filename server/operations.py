@@ -61,4 +61,41 @@ def datetime_formatter(date):
     
     if isinstance(date, datetime):
         return date.replace(second=0, microsecond=0)
+    
+def custom_titled(text):
+    # Define punctuation characters
+    punctuation = ".,!?;"
+    titled_words = []
+    word = ''
+
+    for char in text:
+        if char.isalnum() or (char == "'" and word):
+            # Build the current word
+            word += char
+        else:
+            # If the current character is punctuation or a space and a word is built, process the word
+            if word:
+                if "'" in word and word.endswith("'s"):
+                    # Capitalize the word but keep 's' lowercase
+                    titled_word = word[0].upper() + word[1:-2].lower() + "'s"
+                else:
+                    # Capitalize the entire word
+                    titled_word = word.capitalize()
+
+                titled_words.append(titled_word)
+                word = ''
+
+            # Add punctuation or space as a separate element
+            if char in punctuation or char.isspace():
+                titled_words.append(char)
+
+    # Process any remaining word after the loop ends
+    if word:
+        if "'" in word and word.endswith("'s"):
+            titled_word = word[0].upper() + word[1:-2].lower() + "'s"
+        else:
+            titled_word = word.capitalize()
+        titled_words.append(titled_word)
+
+    return ''.join(titled_words)
 

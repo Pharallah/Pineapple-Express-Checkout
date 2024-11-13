@@ -254,7 +254,7 @@ class Category(db.Model, SerializerMixin):
             raise ValueError('Name must be a valid string')
         if len(name) < 5:
             raise ValueError('Name must be at least 5 characters long')
-        return name.capitalize()
+        return name
     
     @validates('description')
     def validate_description(self, key, description):
@@ -279,7 +279,7 @@ class Item(db.Model, SerializerMixin):
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'))
 
     category = db.relationship('Category', back_populates='items')
-    order_items = db.relationship('OrderItem', back_populates='item')
+    order_items = db.relationship('OrderItem', back_populates='item', cascade='all, delete-orphan')
 
     orders = association_proxy('order_items', 'order', creator=lambda order_obj: OrderItem(order=order_obj))
 
