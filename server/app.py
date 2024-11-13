@@ -126,9 +126,34 @@ class CustomerById(Resource):
 
 class Orders(Resource):
     def get(self):
-        pass
+        orders = [order.to_dict() for order in Order.query.all()]
+        if orders:
+            response = make_response(
+                orders, 200
+            )
+            return response
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
+
     def post(self):
-        pass
+        json = request.get_json()
+        try:
+            new_order = Order(
+                customer_id=json['customerId'],
+                order_type=json['orderType'],
+                pickup_time=json['pickupTime']
+            )
+
+            db.session.add(new_order)
+            db.session.commit()
+
+            order_dict = new_order.to_dict()
+            return make_response(order_dict, 200)
+        
+        except ValueError as e:
+            return {'errors': str(e)}, 400
+        except Exception as e:
+            return {'errors': 'Failed to add order to database'}, 500
 
 class OrdersById(Resource):
     def get(self):
