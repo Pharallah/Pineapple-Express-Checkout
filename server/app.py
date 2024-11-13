@@ -370,8 +370,7 @@ class Items(Resource):
         json = request.get_json()
         try:
             new_item = Item(
-                # NAME WITH POSSESSIVE FORM WORDS AREN'T HANDLED CORRECTLY
-               name=capitalize_sentences(json['name']),
+               name=custom_titled(json['name']),
                description=capitalize_sentences(json['description']),
                price=json['price'],
                category_id=json['categoryId']

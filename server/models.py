@@ -286,7 +286,7 @@ class Item(db.Model, SerializerMixin):
             raise ValueError('Name must be a valid string')
         if len(name) < 5:
             raise ValueError('Name must be at least 5 characters long')
-        return name.title()
+        return name
     
     @validates('image')
     def validate_image(self, key, url):
