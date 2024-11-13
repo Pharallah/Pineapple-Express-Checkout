@@ -108,7 +108,7 @@ class Order(db.Model, SerializerMixin):
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
     order_type = db.Column(db.String, nullable=False)
     pickup_time = db.Column(db.DateTime, nullable=False)
-    order_status = db.Column(db.String, nullable=False, default='In Cart')
+    order_status = db.Column(db.String, nullable=False, default='Pending Checkout')
 
     customer = db.relationship('Customer', back_populates='orders')
     order_items = db.relationship('OrderItem', back_populates='order', cascade='all, delete-orphan')
@@ -175,7 +175,7 @@ class Order(db.Model, SerializerMixin):
     
     @validates('order_status')
     def validate_order_status(self, key, order_status):
-        valid_order_status = ['In Cart', 'Pending', 'Order Placed']
+        valid_order_status = ['Pending Checkout', 'Order Placed']
 
         if order_status is None:
             raise ValueError('Order Status must be specified')

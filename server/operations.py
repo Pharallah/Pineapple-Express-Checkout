@@ -51,3 +51,14 @@ def is_valid_image_url(url):
         return False
 
     return True
+
+def datetime_formatter(date):
+    if isinstance(date, str):
+        date_format = "%Y-%m-%d %H:%M:%S.%f"
+        date_object = datetime.strptime(date, date_format)
+        # Append to the end of date_object if need to omit milliseconds: .replace(second=0, microsecond=0)
+        return date_object
+    
+    if isinstance(date, datetime):
+        return date.replace(second=0, microsecond=0)
+

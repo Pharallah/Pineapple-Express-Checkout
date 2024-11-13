@@ -9,6 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from config import app, db, api
 # Add your model imports
 from models import Customer, Order, OrderItem, Category, Item
+from operations import datetime_formatter
 
 # Views go here!
 
@@ -19,6 +20,15 @@ def index():
 class Customers(Resource):
     def get(self):
         customers = [customer.to_dict(rules=('-_password_hash', '-orders')) for customer in Customer.query.all()]
+        
+        # UNCOMMENT OUT IF YOU WANT RETURNED CUSTOMER DICT'S CREATED AT TO BE FORMATTED TO HR/MIN
+
+        # customers = []
+        # for customer in Customer.query.all():
+        #     customer_dict = customer.to_dict(rules=('-_password_hash', '-orders'))
+        #     formatted_created_at = customer.created_at.strftime("%Y-%m-%d %H:%M")
+        #     customer_dict['created_at'] = formatted_created_at
+        #     customers.append(customer_dict)
 
         if customers:
             response = make_response(
@@ -51,7 +61,6 @@ class Customers(Resource):
             return {'errors': str(e)}, 400
         except Exception as e:
             return {'errors': 'Failed to add item to database'}, 500
-
 
 class CustomerById(Resource):
     def get(self, id):
@@ -114,7 +123,7 @@ class CustomerById(Resource):
         customer_dict = customer.to_dict(rules=('-_password_hash', '-orders'))
         return make_response(customer_dict, 202)
 
-    def delete(self):
+    def delete(self, id):
         customer = Customer.query.filter(Customer.id == id).first()
 
         if not customer:
@@ -126,12 +135,9 @@ class CustomerById(Resource):
 
 class Orders(Resource):
     def get(self):
-        orders = [order.to_dict() for order in Order.query.all()]
+        orders = [order.to_dict(rules=('-customer', '-order_items')) for order in Order.query.all()]
         if orders:
-            response = make_response(
-                orders, 200
-            )
-            return response
+            return make_response(orders, 200)
         else:
             return {'error': 'Unexpected Server Error'}, 500
 
@@ -141,35 +147,100 @@ class Orders(Resource):
             new_order = Order(
                 customer_id=json['customerId'],
                 order_type=json['orderType'],
-                pickup_time=json['pickupTime']
+                # CURRENTLY ONLY ACCEPTS DATETIME DATA THAT INCLUDES MICROSECONDS
+                pickup_time=datetime_formatter(json['pickupTime'])
             )
-
             db.session.add(new_order)
             db.session.commit()
-
-            order_dict = new_order.to_dict()
+            order_dict = new_order.to_dict(rules=('-customer', '-order_items'))
             return make_response(order_dict, 200)
-        
         except ValueError as e:
             return {'errors': str(e)}, 400
         except Exception as e:
             return {'errors': 'Failed to add order to database'}, 500
 
 class OrdersById(Resource):
-    def get(self):
-        pass
-    def patch(self):
-        pass
-    def delete(self):
-        pass
+    def get(self, id):
+        order = Order.query.filter(Order.id == id).first()
+        if not order:
+            abort(404, "Order not found")
+        return order.to_dict(rules=('-customer', '-order_items')), 200
+    
+    def patch(self, id):
+        order = Order.query.filter(Order.id == id).first()
+
+        if not order:
+            abort(404, "Order not found")
+
+        json = request.get_json()
+
+        # Validate input fields
+        errors = []
+        if 'orderType' in json:
+            try:
+                order.order_type = json['orderType']
+            except ValueError as e:
+                errors.append({'field': 'order_type', 'error': str(e)})
+        if 'pickupTime' in json:
+            try:
+                order.pickup_time = datetime_formatter(json['pickupTime'])
+            except ValueError as e:
+                errors.append({'field': 'pickup_time', 'error': str(e)})
+        if 'orderStatus' in json:
+            try:
+                order.order_status = json['orderStatus']
+            except ValueError as e:
+                errors.append({'field': 'order_status', 'error': str(e)})
+        if errors:
+            return {'errors': errors}, 400
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            return {'errors': 'Failed to update order'}, 500
+
+        order_dict = order.to_dict(rules=('-customer', '-order_items'))
+        return make_response(order_dict, 202)
+
+    def delete(self, id):
+        order = Order.query.filter(Order.id == id).first()
+        if not order:
+            abort(404, "Customer not found")
+        db.session.delete(order)
+        db.session.commit()
+        return {}, 204
 
 class OrderItems(Resource):
     def get(self):
-        pass
-    def post(self):
-        pass
+        order_items = [order_item.to_dict(rules=('-item', '-order')) for order_item in OrderItem.query.all()]
+        if order_items:
+            return make_response(order_items, 200)
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
 
-class OrderItemsById(Resource):
+    def post(self):
+        json = request.get_json()
+
+        try:
+            new_order_item = OrderItem(
+                item_id=json['itemId'],
+                order_id=json['orderId'],
+                special_instructions=json['specialInstructions']
+            )
+
+            db.session.add(new_order_item)
+            db.session.commit()
+
+            order_item_dict = new_order_item.to_dict(rules=('-item', '-order'))
+            return make_response(order_item_dict, 200)
+        
+        except ValueError as e:
+            return {'errors': str(e)}, 400
+        except Exception as e:
+            return {'errors': 'Failed to add Order Item to database', 'message': str(e)}, 500
+
+
+class OrderItemById(Resource):
     def get(self):
         pass
     def patch(self):
@@ -197,7 +268,7 @@ class Items(Resource):
     def post(self):
         pass
 
-class ItemsById(Resource):
+class ItemById(Resource):
     def get(self):
         pass
     def patch(self):
@@ -208,7 +279,14 @@ class ItemsById(Resource):
 
 api.add_resource(Customers, '/customers')
 api.add_resource(CustomerById, '/customers/<int:id>')
-
+api.add_resource(Orders, '/orders')
+api.add_resource(OrdersById, '/orders/<int:id>')
+api.add_resource(OrderItems, '/orderitems')
+api.add_resource(OrderItemById, '/orderitems/<int:id>')
+api.add_resource(Categories, '/categories')
+api.add_resource(CategoriesById, '/categories/<int:id>')
+api.add_resource(Items, '/items')
+api.add_resource(ItemById, '/items/<int:id>')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

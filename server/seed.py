@@ -11,12 +11,11 @@ from faker import Faker
 from app import app
 from models import db, Customer, Order, OrderItem, Category, Item
 from data import menu_items, categories, customers, fake_sentences
-from operations import pickup_time_randomizer, price_updater
+from operations import pickup_time_randomizer, price_updater, datetime_formatter
 import logging
 
 def create_customers():
     seeded_customers = []
-
     for customer in customers:
         new_customer = Customer(
             username=customer['username'],
@@ -24,62 +23,51 @@ def create_customers():
         )
         new_customer.password_hash = customer['password']
         seeded_customers.append(new_customer)
-
     return seeded_customers
 
 def create_categories():
     seeded_categories = []
-
     for category in categories:
         new_category = Category(
             name=category,
             description=""
         )
         seeded_categories.append(new_category)
-    
     return seeded_categories
 
 def create_items():
     items = []
-    
     for item in menu_items:
         category_in_db = Category.query.filter(Category.name == item["category"]).first()
-
         new_item = Item(
             name=item['item_name'],
             description=item['description'],
             price=item['price'],
             category_id=category_in_db.id
         )
-        # breakpoint()
         items.append(new_item)
     return items
 
 def create_orders():
     order_type_options = ['Catering', 'Take-Out']
-    valid_order_status = ['In Cart', 'Pending', 'Order Placed']
     customers = Customer.query.all()
 
     new_orders = []
     for customer in customers:
-        # Random number of Orders generated for each Customer
-        rand_int = randint(1, 5)
-        for _ in range(rand_int):
-            type = rc(order_type_options)
-            if type == 'Catering':
-                # Ensure pickup time is at least 24 hours in the future
-                pickup_time = datetime.now() + timedelta(hours=randint(24, 48))
-            else:  # Take-Out
-                # Ensure pickup time is between 10 minutes and 2 hours in the future
-                pickup_time = datetime.now() + timedelta(minutes=randint(10, 120))
-
-            new_order = Order(
-                customer_id=customer.id,
-                order_type=type,
-                pickup_time=pickup_time,
-                order_status=rc(valid_order_status)
-            )
-            new_orders.append(new_order)
+        type = rc(order_type_options)
+        if type == 'Catering':
+            # Ensure pickup time is at least 24 hours in the future
+            pickup_time = datetime.now() + timedelta(hours=randint(24, 48))
+        else:  # Take-Out
+            # Ensure pickup time is between 10 minutes and 2 hours in the future
+            pickup_time = datetime.now() + timedelta(minutes=randint(10, 120))
+        
+        new_order = Order(
+            customer_id=customer.id,
+            order_type=type,
+            pickup_time=pickup_time
+        )
+        new_orders.append(new_order)
 
     return new_orders
 
