@@ -83,32 +83,32 @@ class CustomerById(Resource):
             try:
                 customer.username = json_data['username']
             except ValueError as e:
-                errors.append({'field': 'username', 'error': str(e)})
+                errors.append({'field': 'Username', 'error': str(e)})
         if 'email' in json_data:
             try:
                 customer.email = json_data['email']
             except ValueError as e:
-                errors.append({'field': 'email', 'error': str(e)})
+                errors.append({'field': 'Email', 'error': str(e)})
         if 'password' in json_data:
             try:
                 customer.password_hash = json_data['password']
             except ValueError as e:
-                errors.append({'field': 'password', 'error': str(e)})
-        if 'first_name' in json_data:
+                errors.append({'field': 'Password', 'error': str(e)})
+        if 'firstName' in json_data:
             try:
-                customer.first_name = json_data['first_name']
+                customer.first_name = json_data['firstName']
             except ValueError as e:
-                errors.append({'field': 'first_name', 'error': str(e)})
-        if 'last_name' in json_data:
+                errors.append({'field': 'First Name', 'error': str(e)})
+        if 'lastName' in json_data:
             try:
-                customer.last_name = json_data['last_name']
+                customer.last_name = json_data['lastName']
             except ValueError as e:
-                errors.append({'field': 'last_name', 'error': str(e)})
-        if 'phone_number' in json_data:
+                errors.append({'field': 'Last Name', 'error': str(e)})
+        if 'phoneNumber' in json_data:
             try:
-                customer.phone_number = json_data['phone_number']
+                customer.phone_number = json_data['phoneNumber']
             except ValueError as e:
-                errors.append({'field': 'phone_number', 'error': str(e)})
+                errors.append({'field': 'Phone Number', 'error': str(e)})
         if errors:
             return {'errors': errors}, 400
 
@@ -180,17 +180,17 @@ class OrdersById(Resource):
             try:
                 order.order_type = json['orderType']
             except ValueError as e:
-                errors.append({'field': 'order_type', 'error': str(e)})
+                errors.append({'field': 'Order Type', 'error': str(e)})
         if 'pickupTime' in json:
             try:
                 order.pickup_time = datetime_formatter(json['pickupTime'])
             except ValueError as e:
-                errors.append({'field': 'pickup_time', 'error': str(e)})
+                errors.append({'field': 'Pickup Time', 'error': str(e)})
         if 'orderStatus' in json:
             try:
                 order.order_status = json['orderStatus']
             except ValueError as e:
-                errors.append({'field': 'order_status', 'error': str(e)})
+                errors.append({'field': 'Order Status', 'error': str(e)})
         if errors:
             return {'errors': errors}, 400
 
@@ -239,14 +239,51 @@ class OrderItems(Resource):
         except Exception as e:
             return {'errors': 'Failed to add Order Item to database', 'message': str(e)}, 500
 
-
 class OrderItemById(Resource):
-    def get(self):
-        pass
-    def patch(self):
-        pass
-    def delete(self):
-        pass
+    def get(self, id):
+        order_item = OrderItem.query.filter(OrderItem.id == id).first()
+        if not order_item:
+            abort(404, "Order Item not found")
+        return order_item.to_dict(rules=('-item', '-order')), 200
+    
+    def patch(self, id):
+        order_item = OrderItem.query.filter(OrderItem.id == id).first()
+
+        if not order_item:
+            abort(404, "Order Item not found")
+
+        json = request.get_json()
+
+        # Validate input fields
+        errors = []
+        if 'quantity' in json:
+            try:
+                order_item.quantity = json['quantity']
+            except ValueError as e:
+                errors.append({'field': 'Quantity', 'error': str(e)})
+        if 'specialInstructions' in json:
+            try:
+                order_item.special_instructions = json['specialInstructions']
+            except ValueError as e:
+                errors.append({'field': 'Special Instructions', 'error': str(e)})
+        if errors:
+            return {'errors': errors}, 400
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            return {'errors': 'Failed to update order item'}, 500
+
+        order_item_dict = order_item.to_dict(rules=('-item', '-order'))
+        return make_response(order_item_dict, 202)
+
+    def delete(self, id):
+        order_item = OrderItem.query.filter(OrderItem.id == id).first()
+        if not order_item:
+            abort(404, "Order Item not found")
+        db.session.delete(order_item)
+        db.session.commit()
+        return {}, 204
 
 class Categories(Resource):
     def get(self):
