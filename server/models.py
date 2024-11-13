@@ -3,7 +3,7 @@ from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import validates
 from sqlalchemy.ext.hybrid import hybrid_property
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 from validate_email_address import validate_email
 
 # Local imports
@@ -98,7 +98,6 @@ class Customer(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Customer ID: {self.id} | Username: {self.username}>'
 
-
 class Order(db.Model, SerializerMixin):
     __tablename__ = "orders"
     serialize_rules = ('-customer.orders', '-order_items.order')
@@ -188,7 +187,6 @@ class Order(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<Order ID: {self.id} | Pickup Time: {self.pickup_time} | # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
 
-
 class OrderItem(db.Model, SerializerMixin):
     __tablename__ = "order_items"
     serialize_rules = ('-order.order_items', '-item.order_items')
@@ -235,7 +233,6 @@ class OrderItem(db.Model, SerializerMixin):
     def __repr__(self):
         return f'<OrderItem ID: {self.id} | Item: {self.item.name} | Quantity: {self.quantity}>'
 
-
 class Category(db.Model, SerializerMixin):
     __tablename__ = "categories"
     serialize_rules = ('-items.category',)
@@ -262,10 +259,8 @@ class Category(db.Model, SerializerMixin):
             raise ValueError("Descriptions must be a string.")
         return capitalize_sentences(description)
     
-
     def __repr__(self):
         return f'<Category ID: {self.id} | {self.name}>'
-
 
 class Item(db.Model, SerializerMixin):
     __tablename__ = "items"
@@ -314,10 +309,18 @@ class Item(db.Model, SerializerMixin):
     def validate_price(self, key, price):
         if not isinstance(price, (int, float, Decimal)):
             raise ValueError("Price must be a number.")
+
+        # Convert to Decimal for precise arithmetic operations
+        price = Decimal(price)
+
         if price < 0:
-            raise ValueError("Price must be a positive value.")
+            raise ValueError("Price cannot be a negative integer.")
+
         if price > 1000:
             raise ValueError("Price has exceeded the maximum allowed value of $1000.")
+
+        # Round to 2 decimal places
+        price = price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
         return price
 

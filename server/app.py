@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError
 from config import app, db, api
 # Add your model imports
 from models import Customer, Order, OrderItem, Category, Item
-from operations import datetime_formatter, custom_titled
+from operations import datetime_formatter, custom_titled, capitalize_sentences
 
 # Views go here!
 
@@ -225,7 +225,7 @@ class OrderItems(Resource):
             new_order_item = OrderItem(
                 item_id=json['itemId'],
                 order_id=json['orderId'],
-                special_instructions=json['specialInstructions']
+                special_instructions=capitalize_sentences(json['specialInstructions'])
             )
 
             db.session.add(new_order_item)
@@ -298,7 +298,7 @@ class Categories(Resource):
         try:
             new_category = Category(
                 name=custom_titled(json['name']),
-                description=json['description']
+                description=capitalize_sentences(json['description'])
             )
             db.session.add(new_category)
             db.session.commit()
@@ -358,12 +358,35 @@ class CategoriesById(Resource):
         db.session.commit()
         return {}, 204
 
-
 class Items(Resource):
     def get(self):
-        pass
+        items = [item.to_dict(rules=('-category', '-order_items')) for item in Item.query.all()]
+        if items:
+            return make_response(items, 200)
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
+
     def post(self):
-        pass
+        json = request.get_json()
+        try:
+            new_item = Item(
+                # NAME WITH POSSESSIVE FORM WORDS AREN'T HANDLED CORRECTLY
+               name=capitalize_sentences(json['name']),
+               description=capitalize_sentences(json['description']),
+               price=json['price'],
+               category_id=json['categoryId']
+            )
+            db.session.add(new_item)
+            db.session.commit()
+            item_dict = new_item.to_dict(rules=('-category', '-order_items'))
+            return make_response(item_dict, 200)
+        except IntegrityError:
+            db.session.rollback() 
+            return {'errors': 'Item with that name already exists'}, 400
+        except ValueError as e:
+            return {'errors': str(e)}, 400
+        except Exception as e:
+            return {'errors': 'Failed to add Item to database'}, 500
 
 class ItemById(Resource):
     def get(self):

@@ -73,14 +73,14 @@ def custom_titled(text):
             # Build the current word
             word += char
         else:
-            # If the current character is punctuation or a space and a word is built, process the word
+            # Process the word if we hit punctuation or space
             if word:
                 if "'" in word and word.endswith("'s"):
-                    # Capitalize the word but keep 's' lowercase
+                    # Correctly capitalize possessive forms
                     titled_word = word[0].upper() + word[1:-2].lower() + "'s"
                 else:
-                    # Capitalize the entire word
-                    titled_word = word.capitalize()
+                    # Capitalize the first letter of the word
+                    titled_word = word[0].upper() + word[1:].lower()
 
                 titled_words.append(titled_word)
                 word = ''
@@ -94,8 +94,29 @@ def custom_titled(text):
         if "'" in word and word.endswith("'s"):
             titled_word = word[0].upper() + word[1:-2].lower() + "'s"
         else:
-            titled_word = word.capitalize()
+            titled_word = word[0].upper() + word[1:].lower()
         titled_words.append(titled_word)
 
     return ''.join(titled_words)
 
+def capitalize_sentences(text):
+    # Define sentence-ending punctuation
+    sentence_endings = '.!?'
+
+    # Initialize variables
+    capitalized_text = ''
+    sentence_start = True
+
+    for char in text:
+        if sentence_start and char.isalpha():
+            # Capitalize the first letter of the sentence if it's lowercase
+            capitalized_text += char.upper()
+            sentence_start = False
+        else:
+            capitalized_text += char
+
+        # Check if the current character is a sentence-ending punctuation
+        if char in sentence_endings:
+            sentence_start = True
+
+    return capitalized_text
