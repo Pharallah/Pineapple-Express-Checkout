@@ -237,7 +237,7 @@ class OrderItems(Resource):
         except ValueError as e:
             return {'errors': str(e)}, 400
         except Exception as e:
-            return {'errors': 'Failed to add Order Item to database', 'message': str(e)}, 500
+            return {'errors': 'Failed to add Order Item to database'}, 500
 
 class OrderItemById(Resource):
     def get(self, id):
@@ -287,9 +287,30 @@ class OrderItemById(Resource):
 
 class Categories(Resource):
     def get(self):
-        pass
+        categories = [category.to_dict(rules=('-items',)) for category in Category.query.all()]
+        if categories:
+            return make_response(categories, 200)
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
+
     def post(self):
-        pass
+        json = request.get_json()
+        try:
+            new_category = Category(
+                name=json['name'],
+                description=json['description']
+            )
+            db.session.add(new_category)
+            db.session.commit()
+            category_dict = new_category.to_dict(rules=('-items',))
+            return make_response(category_dict, 200)
+        except IntegrityError:
+            db.session.rollback() 
+            return {'errors': 'Category with that name already exists'}, 400
+        except ValueError as e:
+            return {'errors': str(e)}, 400
+        except Exception as e:
+            return {'errors': 'Failed to add Category to database'}, 500
 
 class CategoriesById(Resource):
     def get(self):

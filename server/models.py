@@ -254,7 +254,7 @@ class Category(db.Model, SerializerMixin):
             raise ValueError('Name must be a valid string')
         if len(name) < 5:
             raise ValueError('Name must be at least 5 characters long')
-        return name.title()
+        return name.capitalize()
     
     @validates('description')
     def validate_description(self, key, description):
