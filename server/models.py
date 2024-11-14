@@ -27,6 +27,25 @@ class Customer(db.Model, SerializerMixin):
 
     orders = db.relationship('Order', back_populates='customer', cascade='all, delete-orphan')
 
+    # Flask-Login required property
+    def get_id(self):
+       return str(self.id)
+    
+    # Flask-Login required property
+    @property
+    def is_authenticated(self):
+       return True
+    
+    # Flask-Login required property
+    @property
+    def is_active(self):
+       return True
+    
+    # Flask-Login required property
+    @property
+    def is_anonymous(self):
+       return False
+
     def _is_valid_password(self, password):
         if len(password) < 8:
             return False

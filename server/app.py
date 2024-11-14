@@ -3,15 +3,45 @@
 # Remote library imports
 from flask import request, make_response, abort
 from flask_restful import Resource
+from flask_login import login_user, logout_user, login_required
 from sqlalchemy.exc import IntegrityError
 
 # Local imports
-from config import app, db, api
+from config import app, db, api, login_manager
 # Add your model imports
 from models import Customer, Order, OrderItem, Category, Item
 from operations import datetime_formatter, custom_titled, capitalize_sentences
 
-# Views go here!
+# Flask-Login User Loader
+@login_manager.user_loader
+def load_user(customer_id):
+    return Customer.query.get(int(customer_id))
+
+class Login(Resource):
+       def post(self):
+           json = request.get_json()
+           username = json.get('username')
+           password = json.get('password')
+
+           if not username:
+               return {'message': 'Username required!'}, 400
+           if not password:
+               return {'message': 'Password required!'}, 400
+
+           customer = Customer.query.filter_by(username=username).first()
+
+           if customer and customer.authenticate(password):
+               login_user(customer)
+               customer_dict = customer.to_dict(rules=('-_password_hash', '-orders'))
+               return customer_dict, 201
+
+           return {'message': 'Invalid credentials'}, 401
+    
+class Logout(Resource):
+       @login_required
+       def post(self):
+           logout_user()
+           return {'message': 'Logged out successfully!'}, 200
 
 @app.route('/')
 def index():
@@ -453,6 +483,8 @@ api.add_resource(Categories, '/categories')
 api.add_resource(CategoriesById, '/categories/<int:id>')
 api.add_resource(Items, '/items')
 api.add_resource(ItemById, '/items/<int:id>')
+api.add_resource(Login, '/login')
+api.add_resource(Logout, '/logout')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
