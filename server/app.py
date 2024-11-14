@@ -3,7 +3,7 @@
 # Remote library imports
 from flask import request, make_response, abort
 from flask_restful import Resource
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
 
 # Local imports
@@ -31,9 +31,10 @@ class Login(Resource):
            customer = Customer.query.filter_by(username=username).first()
 
            if customer and customer.authenticate(password):
-               login_user(customer)
-               customer_dict = customer.to_dict(rules=('-_password_hash', '-orders'))
-               return customer_dict, 201
+                # login_user() sets the ID in the session & marks them as authenticated
+               login_user(customer, remember=True)
+               
+               return customer.to_dict(rules=('-_password_hash', '-orders')), 201
 
            return {'message': 'Invalid credentials'}, 401
     
@@ -42,10 +43,6 @@ class Logout(Resource):
        def post(self):
            logout_user()
            return {'message': 'Logged out successfully!'}, 200
-
-@app.route('/')
-def index():
-    return '<h1>Project Server</h1>'
 
 class Customers(Resource):
     def get(self):
