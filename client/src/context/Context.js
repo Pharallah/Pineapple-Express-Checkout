@@ -10,15 +10,16 @@ function ContextProvider({ children }) {
     const [orderItems, setOrderItems] = useState([])
     const [categories, setCategories] = useState([])
     const [items, setItems] = useState([])
-    const [currentUser, setCurrentUser] = useState()
+    const [currentUser, setCurrentUser] = useState(false)
 
     console.log(currentUser)
 
-    useEffect(() => {
-        fetch('/current_user')
-        .then(res => res.json())
-        .then(currentUser => setCurrentUser(currentUser))
-    }, [])
+    // CHECKS FOR AUTHENTICATED USER
+    // useEffect(() => {
+    //     fetch('/current_user')
+    //     .then(res => res.json())
+    //     .then(currentUser => setCurrentUser(currentUser))
+    // }, [])
     
     useEffect(() => {
         fetch('/customers')

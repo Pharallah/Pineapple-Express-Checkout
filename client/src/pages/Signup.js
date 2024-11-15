@@ -55,10 +55,17 @@ function Signup() {
           2
         ),
       })
-      .then(res => res.json())
-      .then(newCustomer => {
-        onSignup(newCustomer)
-        navigate('/dashboard')
+      .then(res => {
+        if (res.status === 201) {
+          navigate('/dashboard');
+          return res.json();
+        } else {
+          throw new Error ('Failed to create account');
+        }
+      })
+      .then(newCustomer => onSignup(newCustomer))
+      .catch(error => {
+        console.error('Error:', error)
       })
     }
   })
