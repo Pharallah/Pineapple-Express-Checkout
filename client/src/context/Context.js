@@ -10,6 +10,15 @@ function ContextProvider({ children }) {
     const [orderItems, setOrderItems] = useState([])
     const [categories, setCategories] = useState([])
     const [items, setItems] = useState([])
+    const [currentUser, setCurrentUser] = useState()
+
+    console.log(currentUser)
+
+    useEffect(() => {
+        fetch('/current_user')
+        .then(res => res.json())
+        .then(currentUser => setCurrentUser(currentUser))
+    }, [])
     
     useEffect(() => {
         fetch('/customers')
@@ -65,14 +74,24 @@ function ContextProvider({ children }) {
         })
         .then(items => setItems(items))
     }, [])
+
+    function onSignup(user) {
+        const updatedCustomers = [
+            ...customers,
+            user
+        ]
+        setCustomers(updatedCustomers)
+    }
   
     return <Context.Provider value={
         {
+            currentUser, setCurrentUser,
             customers, setCustomers,
             orders, setOrders,
             orderItems, setOrderItems,
             categories, setCategories,
-            items, setItems
+            items, setItems,
+            onSignup
         }
     }>{children}</Context.Provider>
 }
