@@ -8,7 +8,7 @@ import { ContextProvider } from "./context/Context";
 
 const routes = [
     {
-        path: '/',
+        path: '*',
         element: ( 
             <ContextProvider>
                 <App/>

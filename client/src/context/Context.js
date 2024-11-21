@@ -12,8 +12,6 @@ function ContextProvider({ children }) {
     const [items, setItems] = useState([])
     const [currentUser, setCurrentUser] = useState(false)
 
-    console.log(currentUser)
-
     // CHECKS FOR AUTHENTICATED USER
     useEffect(() => {
         fetch('/current_user')

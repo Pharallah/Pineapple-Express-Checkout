@@ -79,9 +79,6 @@ function Signup() {
   })
 
   function loginAfterSignup(customer, password) {
-    console.log(`USERNAME: ${customer.username}`)
-    console.log(`PASSWORD: ${password}`)
-
     fetch('/login', {
       method: "POST", 
       headers: {
@@ -93,7 +90,6 @@ function Signup() {
       })
     })
     .then(res => {
-      console.log(res.status)
       if (res.status === 201) {
         navigate('/');
         return res.json();
@@ -103,7 +99,6 @@ function Signup() {
     })
     .then(authenticatedUser => {
       setCurrentUser(authenticatedUser)
-      console.log("currentUser has been set to logged in user")
     })
   }
   
