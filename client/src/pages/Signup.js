@@ -3,12 +3,13 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import { Context } from '../context/Context';
 import { useContext } from 'react';
-// import { useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 
 function Signup() {
   // const navigate = useNavigate()
   const { setCurrentUser, onSignup } = useContext(Context)
+  const navigate = useNavigate()
   
   const formSchema = yup.object().shape({
     username: yup
@@ -69,12 +70,42 @@ function Signup() {
       .then(newCustomer => {
         onSignup(newCustomer);
         setCurrentUser(newCustomer);
+        loginAfterSignup(newCustomer, values.password);
       })
       .catch(error => {
         console.error('Error:', error)
       })
     }
   })
+
+  function loginAfterSignup(customer, password) {
+    console.log(`USERNAME: ${customer.username}`)
+    console.log(`PASSWORD: ${password}`)
+
+    fetch('/login', {
+      method: "POST", 
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: customer.username,
+        password: password
+      })
+    })
+    .then(res => {
+      console.log(res.status)
+      if (res.status === 201) {
+        navigate('/');
+        return res.json();
+      } else {
+        throw new Error ('Login Failed');
+      }
+    })
+    .then(authenticatedUser => {
+      setCurrentUser(authenticatedUser)
+      console.log("currentUser has been set to logged in user")
+    })
+  }
   
   return (
     <>

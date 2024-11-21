@@ -13,7 +13,7 @@ function App() {
   return (
         <Routes>
             {/* Default route: Direct unauthenticated users to Signup */}
-            <Route path="/*" element={currentUser ? <Navigate to="/dashboard" /> : <Signup />} />
+            <Route path="*" element={currentUser ? <Navigate to="/dashboard" /> : <Signup />} />
 
             {/* Login page */}
             <Route path="/login" element={<Login />} />
