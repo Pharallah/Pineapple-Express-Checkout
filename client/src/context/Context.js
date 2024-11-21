@@ -15,11 +15,11 @@ function ContextProvider({ children }) {
     console.log(currentUser)
 
     // CHECKS FOR AUTHENTICATED USER
-    // useEffect(() => {
-    //     fetch('/current_user')
-    //     .then(res => res.json())
-    //     .then(currentUser => setCurrentUser(currentUser))
-    // }, [])
+    useEffect(() => {
+        fetch('/current_user')
+        .then(res => res.json())
+        .then(currentUser => setCurrentUser(currentUser))
+    }, [])
     
     useEffect(() => {
         fetch('/customers')

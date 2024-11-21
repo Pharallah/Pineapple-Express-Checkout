@@ -9,3 +9,7 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
+.disclosure-panel {
+  position: relative;
+  z-index: 10; /* Ensure it's above other elements */
+}

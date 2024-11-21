@@ -7,7 +7,7 @@ import { Context } from '../context/Context';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const { setCurrentUser } = useContext(Context)
+  const { currentUser, setCurrentUser } = useContext(Context)
   const navigate = useNavigate()
 
   const formSchema = yup.object().shape({
@@ -39,10 +39,18 @@ function Login() {
           2
         ),
       })
-      .then(res => res.json())
+      .then(res => {
+        console.log(res.status)
+        if (res.status === 201) {
+          navigate('/');
+          return res.json();
+        } else {
+          throw new Error ('Login Failed');
+        }
+      })
       .then(authenticatedUser => {
         setCurrentUser(authenticatedUser)
-        navigate('/dashboard')
+        console.log("currentUser has been set to logged in user")
       })
     }
   })

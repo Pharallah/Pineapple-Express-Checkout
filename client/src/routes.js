@@ -9,25 +9,19 @@ import { ContextProvider } from "./context/Context";
 const routes = [
     {
         path: '/',
-        element: (
+        element: ( 
             <ContextProvider>
                 <App/>
             </ContextProvider>
         ),
-        children: [
-            {
-                path: "/signup",
-                element: <Signup/>,
-            },
-            {
-                path: "/orders",
-                element: <Orders/>,
-            },
-            {
-                path: "/cart",
-                element: <Cart/>,
-            },
-        ]
+    },
+    {
+        path: "/signup",
+        element: (
+            <ContextProvider>
+                <Signup/>
+            </ContextProvider>
+        ),
     },
     {
         path: "/login",
@@ -39,7 +33,21 @@ const routes = [
     },
     {
         path: "/dashboard",
-        element: <Dashboard/>,
+        element: (
+            <ContextProvider>
+                <Dashboard/>
+            </ContextProvider>
+        ),
+        children: [
+            {
+                path: "orders",
+                element: <Orders/>,
+            },
+            {
+                path: "cart",
+                element: <Cart/>,
+            },
+        ]
     },
 ]
 

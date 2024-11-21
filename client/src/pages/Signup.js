@@ -3,12 +3,12 @@ import { useFormik } from "formik";
 import * as yup from "yup";
 import { Context } from '../context/Context';
 import { useContext } from 'react';
-import { useNavigate } from 'react-router';
+// import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
 
 function Signup() {
-  const navigate = useNavigate()
-  const { currentUser, onSignup } = useContext(Context)
+  // const navigate = useNavigate()
+  const { setCurrentUser, onSignup } = useContext(Context)
   
   const formSchema = yup.object().shape({
     username: yup
@@ -20,7 +20,11 @@ function Signup() {
     email: yup
       .string()
       .email('Email must be a valid email address')
-      .required("Email is required"),
+      .required("Email is required")
+      .matches(
+        /^[\w-.]+@([\w-]+\.)+[\w-]{2,3}$/,
+        'Email must be a valid email address with a valid domain'
+      ),
     password: yup
       .string()
       .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
@@ -57,13 +61,15 @@ function Signup() {
       })
       .then(res => {
         if (res.status === 201) {
-          navigate('/dashboard');
           return res.json();
         } else {
           throw new Error ('Failed to create account');
         }
       })
-      .then(newCustomer => onSignup(newCustomer))
+      .then(newCustomer => {
+        onSignup(newCustomer);
+        setCurrentUser(newCustomer);
+      })
       .catch(error => {
         console.error('Error:', error)
       })
