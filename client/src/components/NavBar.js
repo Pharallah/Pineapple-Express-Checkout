@@ -2,9 +2,10 @@ import React, { useState, useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Context } from '../context/Context';
+import logo from '../assets/logo.jpg'
 
 function NavBar() {
-    const { currentUser, setCurrentUser } = useContext(Context);
+    const { setCurrentUser } = useContext(Context);
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
 
@@ -14,7 +15,6 @@ function NavBar() {
 
     const handleLogout = (e) => {
         e.preventDefault();
-        console.log("Logout Initiated");
 
         fetch('/logout', {
             method: 'POST',
@@ -56,8 +56,8 @@ function NavBar() {
                     <div className="flex items-center">
                         <img
                             alt="Your Company"
-                            src=""
-                            className="h-10 w-auto"
+                            src={logo}
+                            className="h-28 w-auto"
                         />
                         <h1 className="text-4xl font-bold text-white ml-6 font-serif">
                             Pineapple Express Checkout
