@@ -41,6 +41,7 @@ def create_items():
         category_in_db = Category.query.filter(Category.name == item["category"]).first()
         new_item = Item(
             name=item['item_name'],
+            image=item['image'],
             description=item['description'],
             price=item['price'],
             category_id=category_in_db.id

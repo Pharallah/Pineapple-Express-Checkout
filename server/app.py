@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Remote library imports
-from flask import request, make_response, abort
+from flask import request, make_response, abort, redirect, url_for
 from flask_restful import Resource
 from flask_login import login_user, logout_user, login_required, current_user
 from sqlalchemy.exc import IntegrityError
@@ -16,6 +16,13 @@ from operations import datetime_formatter, custom_titled, capitalize_sentences
 @login_manager.user_loader
 def load_user(customer_id):
     return Customer.query.get(int(customer_id))
+
+class CurrentUser(Resource):
+    def get(self):
+        if current_user.is_authenticated:
+            return current_user.to_dict(rules=('-_password_hash', '-orders')), 200
+        else:
+            return False
 
 class Login(Resource):
        def post(self):
@@ -34,7 +41,7 @@ class Login(Resource):
                 # login_user() sets the ID in the session & marks them as authenticated
                login_user(customer, remember=True)
                
-               return customer.to_dict(rules=('-_password_hash', '-orders')), 201
+               return current_user.to_dict(rules=('-_password_hash', '-orders')), 201
 
            return {'message': 'Invalid credentials'}, 401
     
@@ -70,8 +77,11 @@ class Customers(Resource):
             db.session.add(new_customer)
             db.session.commit()
 
+            login_user(new_customer)
+
             customer_dict = new_customer.to_dict(rules=('-_password_hash', '-orders'))
-            return make_response(customer_dict, 200)
+
+            return make_response(customer_dict, 201)
         
         except IntegrityError:
             db.session.rollback() 
@@ -468,6 +478,13 @@ class ItemById(Resource):
         db.session.delete(item)
         db.session.commit()
         return {}, 204
+    
+
+# class Images(Resource):
+#     def get():
+#         chicken_image_url = url_for('static', filename='images/chicken_tocino.jpg')
+#         breakpoint()
+#         return f'<img src="{chicken_image_url}" alt="Chicken Tocino">'
 
 
 api.add_resource(Customers, '/customers')
@@ -482,6 +499,8 @@ api.add_resource(Items, '/items')
 api.add_resource(ItemById, '/items/<int:id>')
 api.add_resource(Login, '/login')
 api.add_resource(Logout, '/logout')
+api.add_resource(CurrentUser, '/current_user')
+# api.add_resource(Images, '/images')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
