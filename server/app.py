@@ -20,7 +20,7 @@ def load_user(customer_id):
 class CurrentUser(Resource):
     def get(self):
         if current_user.is_authenticated:
-            return current_user.to_dict(rules=('-_password_hash', '-orders')), 200
+            return current_user.to_dict(rules=('-_password_hash',)), 200
         else:
             return False
 
@@ -40,8 +40,7 @@ class Login(Resource):
            if customer and customer.authenticate(password):
                 # login_user() sets the ID in the session & marks them as authenticated
                login_user(customer, remember=True)
-               
-               return current_user.to_dict(rules=('-_password_hash', '-orders')), 201
+               return current_user.to_dict(rules=('-_password_hash',)), 201
 
            return {'message': 'Invalid credentials'}, 401
     
@@ -97,7 +96,8 @@ class CustomerById(Resource):
         
         if not customer:
             abort(404, "Customer not found")
-        return customer.to_dict(rules=('-_password_hash', '-orders')), 200
+
+        return customer.to_dict(rules=('-_password_hash',)), 200
     
     def patch(self, id):
         customer = Customer.query.filter(Customer.id == id).first()
@@ -176,10 +176,18 @@ class Orders(Resource):
     def post(self):
         json = request.get_json()
         try:
+            # Check if the customer already has a "Pending Checkout" order
+            existing_order = Order.query.filter_by(
+                customer_id=json['customerId'], order_status="Pending Checkout"
+                ).first()
+            
+            if existing_order:
+                return {'errors': 'Customer already has an existing pending order.'}, 400
+
+            # Proceed with creating the new order
             new_order = Order(
                 customer_id=json['customerId'],
                 order_type=json['orderType'],
-                pickup_time=datetime_formatter(json['pickupTime'])
             )
             db.session.add(new_order)
             db.session.commit()
@@ -190,15 +198,15 @@ class Orders(Resource):
         except Exception as e:
             return {'errors': 'Failed to add order to database'}, 500
 
-class OrdersById(Resource):
+class OrderByCustomerId(Resource):
     def get(self, id):
-        order = Order.query.filter(Order.id == id).first()
+        order = Order.query.filter(Order.customer_id == id).first()
         if not order:
             abort(404, "Order not found")
         return order.to_dict(rules=('-customer', '-order_items')), 200
     
     def patch(self, id):
-        order = Order.query.filter(Order.id == id).first()
+        order = Order.query.filter(Order.customer_id == id).first()
 
         if not order:
             abort(404, "Order not found")
@@ -251,12 +259,11 @@ class OrderItems(Resource):
 
     def post(self):
         json = request.get_json()
-
+        # breakpoint()
         try:
             new_order_item = OrderItem(
                 item_id=json['itemId'],
                 order_id=json['orderId'],
-                special_instructions=capitalize_sentences(json['specialInstructions'])
             )
 
             db.session.add(new_order_item)
@@ -490,7 +497,7 @@ class ItemById(Resource):
 api.add_resource(Customers, '/customers')
 api.add_resource(CustomerById, '/customers/<int:id>')
 api.add_resource(Orders, '/orders')
-api.add_resource(OrdersById, '/orders/<int:id>')
+api.add_resource(OrderByCustomerId, '/orders/<int:id>')
 api.add_resource(OrderItems, '/orderitems')
 api.add_resource(OrderItemById, '/orderitems/<int:id>')
 api.add_resource(Categories, '/categories')

@@ -14,7 +14,7 @@ from config import db, bcrypt
 
 class Customer(db.Model, SerializerMixin):
     __tablename__ = "customers"
-    serialize_rules = ('-orders.customer', '-_password_hash')
+    serialize_rules = ('-_password_hash',)
 
     id = db.Column(db.Integer, primary_key=True)
     username= db.Column(db.String, nullable =False, unique=True)
@@ -119,13 +119,13 @@ class Customer(db.Model, SerializerMixin):
 
 class Order(db.Model, SerializerMixin):
     __tablename__ = "orders"
-    serialize_rules = ('-customer.orders', '-order_items.order')
+    serialize_rules = ('-customer.orders',)
 
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
-    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now())
     order_type = db.Column(db.String, nullable=False)
-    pickup_time = db.Column(db.DateTime, nullable=False)
+    pickup_time = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now() + timedelta(minutes=20))
     order_status = db.Column(db.String, nullable=False, default='Pending Checkout')
 
     customer = db.relationship('Customer', back_populates='orders')
@@ -172,11 +172,18 @@ class Order(db.Model, SerializerMixin):
     
     @validates('pickup_time')
     def validate_pickup_time(self, key, pickup_time):
+        if pickup_time is None:
+            now = datetime.now()
+            if self.order_type == 'Catering':
+                # Default for Catering orders
+                return now + timedelta(hours=24)
+            elif self.order_type == 'Take-Out':
+                # Default for Take-Out orders
+                return now + timedelta(minutes=20)
+
+        # Validate provided pickup_time
         if not isinstance(pickup_time, datetime):
             raise ValueError('Pickup time must be a valid datetime object.')
-        
-        if not self.order_type:
-            raise ValueError('Order type must be set before validating pickup time.')
 
         now = datetime.now()
 

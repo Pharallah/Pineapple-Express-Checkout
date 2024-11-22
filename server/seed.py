@@ -59,7 +59,7 @@ def create_orders():
         if type == 'Catering':
             # Ensure pickup time is at least 24 hours in the future
             pickup_time = datetime.now() + timedelta(hours=randint(24, 48))
-        else:  # Take-Out
+        elif type == 'Take-Out':
             # Ensure pickup time is between 10 minutes and 2 hours in the future
             pickup_time = datetime.now() + timedelta(minutes=randint(10, 120))
         
