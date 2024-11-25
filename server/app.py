@@ -198,6 +198,15 @@ class Orders(Resource):
         except Exception as e:
             return {'errors': 'Failed to add order to database'}, 500
 
+class OrderHistory(Resource):
+    def get(self):
+        orders = [order.to_dict(rules=('-customer',)) for order in Order.query.all() if order.order_status == "Order Placed"]
+        
+        if orders:
+            return make_response(orders, 200)
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
+
 class OrderByCustomerId(Resource):
     def get(self, id):
         order = Order.query.filter(Order.customer_id == id).first()
@@ -485,18 +494,12 @@ class ItemById(Resource):
         db.session.delete(item)
         db.session.commit()
         return {}, 204
-    
-
-# class Images(Resource):
-#     def get():
-#         chicken_image_url = url_for('static', filename='images/chicken_tocino.jpg')
-#         breakpoint()
-#         return f'<img src="{chicken_image_url}" alt="Chicken Tocino">'
 
 
 api.add_resource(Customers, '/customers')
 api.add_resource(CustomerById, '/customers/<int:id>')
 api.add_resource(Orders, '/orders')
+api.add_resource(OrderHistory, '/order_history')
 api.add_resource(OrderByCustomerId, '/orders/<int:id>')
 api.add_resource(OrderItems, '/orderitems')
 api.add_resource(OrderItemById, '/orderitems/<int:id>')
@@ -507,7 +510,6 @@ api.add_resource(ItemById, '/items/<int:id>')
 api.add_resource(Login, '/login')
 api.add_resource(Logout, '/logout')
 api.add_resource(CurrentUser, '/current_user')
-# api.add_resource(Images, '/images')
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
