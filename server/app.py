@@ -199,11 +199,14 @@ class Orders(Resource):
             return {'errors': 'Failed to add order to database'}, 500
 
 class OrderHistory(Resource):
-    def get(self):
-        orders = [order.to_dict(rules=('-customer',)) for order in Order.query.all() if order.order_status == "Order Placed"]
-        
-        if orders:
-            return make_response(orders, 200)
+    def get(self, id):
+        # All Orders of a particular customer if their order_status == "Order Placed"
+
+        orders = db.session.query(Order).join(Customer).filter(Customer.id == id).all()
+        orders_placed = [order.to_dict(rules=('-customer',)) for order in orders if order.order_status == 'Order Placed']
+
+        if orders_placed:
+            return make_response(orders_placed, 200)
         else:
             return {'error': 'Unexpected Server Error'}, 500
     
@@ -507,7 +510,7 @@ class ItemById(Resource):
 api.add_resource(Customers, '/customers')
 api.add_resource(CustomerById, '/customers/<int:id>')
 api.add_resource(Orders, '/orders')
-api.add_resource(OrderHistory, '/order_history')
+api.add_resource(OrderHistory, '/order_history/<int:id>')
 api.add_resource(OrderByCustomerId, '/orders/<int:id>')
 api.add_resource(OrderItems, '/orderitems')
 api.add_resource(OrderItemById, '/orderitems/<int:id>')
