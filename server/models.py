@@ -220,6 +220,7 @@ class OrderItem(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     item_id = db.Column(db.Integer, db.ForeignKey('items.id'), nullable=False)
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), nullable=False)
+    image = db.Column(db.String, nullable=True)
     quantity = db.Column(db.Integer, nullable=False, default=1)
     special_instructions = db.Column(db.String, nullable=False, default="")
 
@@ -240,6 +241,17 @@ class OrderItem(db.Model, SerializerMixin):
                 raise ValueError(f'No order by that ID found in database.')
             
         return id
+    
+    @validates('image')
+    def validate_image(self, key, url):
+        if url is None:
+            return url  
+        if not validators.url(url):
+            raise ValueError('The provided value is not a valid URL.')
+        if not is_valid_image_url(url):
+            raise ValueError('The URL does not point to a valid image file.')
+
+        return url
 
     @validates('quantity')
     def validates_item_quantities(self, key, quantity):
