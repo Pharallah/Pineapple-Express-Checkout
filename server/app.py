@@ -17,10 +17,30 @@ from operations import datetime_formatter, custom_titled, capitalize_sentences
 def load_user(customer_id):
     return Customer.query.get(int(customer_id))
 
+# class CurrentUser(Resource):
+#     def get(self):
+#         if current_user.is_authenticated:
+#             return current_user.to_dict(rules=('-_password_hash',)), 200
+#         else:
+#             return False
+
 class CurrentUser(Resource):
     def get(self):
         if current_user.is_authenticated:
-            return current_user.to_dict(rules=('-_password_hash',)), 200
+            user_dict = current_user.to_dict(rules=('-_password_hash', '-orders.customer'))
+
+            if 'orders' in user_dict:
+                for order in user_dict['orders']:
+                    print(f"Debug Order Before Total Price: {order}")
+
+                    total_price = 0
+                    for item in order.get('order_items', []):
+                        price = float(item['item']['price'])
+                        quantity = int(item['quantity'])
+                        total_price += price * quantity
+
+                    order['total_price'] = total_price
+            return user_dict, 200
         else:
             return False
 

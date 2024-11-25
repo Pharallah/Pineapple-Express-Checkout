@@ -140,6 +140,10 @@ class Order(db.Model, SerializerMixin):
     def total_price(self):
         return sum(order_item.item.price * order_item.quantity for order_item in self.order_items)
     
+    @property
+    def total_price_serialized(self):
+        return self.total_price
+    
     @validates('customer_id')
     def validates_customer_id(self, key, id):
         customer = Customer.query.filter(Customer.id == id).first()
@@ -211,7 +215,7 @@ class Order(db.Model, SerializerMixin):
         return order_status
     
     def __repr__(self):
-        return f'<Order ID: {self.id} | Pickup Time: {self.pickup_time} | # of Items: {self.number_of_items} | Total Price: {self.total_price}>'
+        return f'<Order ID: {self.id} | # of Items: {self.number_of_items} | Order Status: {self.order_status} | Total Price: ${self.total_price}>'
 
 class OrderItem(db.Model, SerializerMixin):
     __tablename__ = "order_items"
