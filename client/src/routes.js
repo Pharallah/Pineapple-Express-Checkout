@@ -38,24 +38,28 @@ const routes = [
                 <Dashboard/>
             </ContextProvider>
         ),
-        // children: []
+        children: [
+            {
+                path: "orders",
+                element: (
+                    // <ContextProvider>
+                        <OrderHistory />
+                    // </ContextProvider>
+                ),
+            },
+            {
+                path: "cart",
+                element: (
+                    <ContextProvider>
+                        <Cart />
+                    </ContextProvider>
+                ),
+            },
+        ]
     },
-    {
-        path: "/orders",
-        element: (
-            <ContextProvider>
-                <OrderHistory />
-            </ContextProvider>
-        ),
-    },
-    {
-        path: "/cart",
-        element: (
-            <ContextProvider>
-                <Cart />
-            </ContextProvider>
-        ),
-    },
+    
+    
+    
 ]
 
 export default routes;

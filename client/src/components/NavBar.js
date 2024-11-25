@@ -40,8 +40,8 @@ function NavBar() {
 
     const navigation = [
         { name: 'Home', href: '/dashboard' },
-        { name: 'Order History', href: '/orders' },
-        { name: 'Cart', href: '/cart' },
+        { name: 'Order History', href: 'orders' },
+        { name: 'Cart', href: 'cart' },
         {
             name: `Logout`,
             onClick: handleLogout,

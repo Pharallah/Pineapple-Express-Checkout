@@ -11,7 +11,7 @@ function ContextProvider({ children }) {
     const [categories, setCategories] = useState([])
     const [items, setItems] = useState([])
     const [currentUser, setCurrentUser] = useState(false)
-    const [currentOrder, setCurrentOrder] = useState({})
+    const [currentOrder, setCurrentOrder] = useState([])
 
 
     // console.log(`CUSTOMERS: ${customers}`)
@@ -19,13 +19,35 @@ function ContextProvider({ children }) {
     // console.log(`ORDERITEMS: ${orderItems}`)
     // console.log(`CATEGORIES: ${categories}`)
     // console.log(`ITEMS: ${items}`)
-    // console.log(`CURRENT USER: ${currentUser}`)
+    // console.log(currentOrder)
+    useEffect(() => {
+        fetch('/customers')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(customers => setCustomers(customers))
+    }, [])
+
+    // CHECKS FOR AUTHENTICATED USER
+    useEffect(() => {
+        fetch('/current_user')
+        .then(res => {
+            if (res.ok) {
+                return res.json()
+            }
+        })
+        .then((user) => {
+            setCurrentUser(user);
+        })
+    }, [customers, orders, orderItems])
 
     useEffect(() => {
-        for (const order of currentUser.orders) {
-          if (order.order_status === "Pending Checkout") {
-            setCurrentOrder(order)
-          }
+        if (currentUser !== false) {
+          const pendingOrder = currentUser.orders.filter((order) => order.order_status === "Pending Checkout")
+          setCurrentOrder(pendingOrder)
         }
       }, [currentUser])
 
@@ -50,30 +72,6 @@ function ContextProvider({ children }) {
         })
         .then(orderItems => setOrderItems(orderItems))
     }, [])
-
-    // CHECKS FOR AUTHENTICATED USER
-    useEffect(() => {
-        fetch('/current_user')
-        .then(res => {
-            if (res.ok) {
-                return res.json()
-            }
-        })
-        .then((user) => onSetCurrentUser(user))
-    }, [customers, orders, orderItems])
-    
-    useEffect(() => {
-        fetch('/customers')
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(customers => setCustomers(customers))
-    }, [])
-
-    
 
     useEffect(() => {
         fetch('/categories')
