@@ -206,6 +206,14 @@ class OrderHistory(Resource):
             return make_response(orders, 200)
         else:
             return {'error': 'Unexpected Server Error'}, 500
+    
+    def delete(self, id):
+        order = Order.query.filter(Order.id == id).first()
+        if not order:
+            abort(404, "Order not found")
+        db.session.delete(order)
+        db.session.commit()
+        return {}, 204
 
 class OrderByCustomerId(Resource):
     def get(self, id):
