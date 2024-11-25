@@ -96,8 +96,6 @@ def create_order_items():
                 special_instructions=joined_sentences
             )
             
-            # price_updater(item.id, order.id, new_order_item.quantity)
-
             new_order_items.append(new_order_item)
             
     return new_order_items
@@ -105,13 +103,21 @@ def create_order_items():
 if __name__ == '__main__':
     fake = Faker()
     with app.app_context():
+        # Drop all tables
+        print("Dropping all tables...")
+        db.drop_all()
+
+        # Recreate all tables
+        print("Recreating all tables...")
+        db.create_all()
+
         print("Starting seed...")
-        Customer.query.delete()
-        Order.query.delete()
-        OrderItem.query.delete()
-        Category.query.delete()
-        Item.query.delete()
-        print('All tables deleted...')
+        # Customer.query.delete()
+        # Order.query.delete()
+        # OrderItem.query.delete()
+        # Category.query.delete()
+        # Item.query.delete()
+        # print('All tables deleted...')
 
         print("Seeding Customers...")
         customers = create_customers()
