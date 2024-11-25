@@ -40,7 +40,7 @@ function NavBar() {
 
     const navigation = [
         { name: 'Home', href: '/dashboard' },
-        { name: 'Orders', href: '/orders' },
+        { name: 'Order History', href: '/orders' },
         { name: 'Cart', href: '/cart' },
         {
             name: `Logout`,

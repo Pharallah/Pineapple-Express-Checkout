@@ -2,13 +2,13 @@ import App from "./pages/App";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
-import Orders from "./pages/Orders";
 import Cart from "./pages/Cart";
 import { ContextProvider } from "./context/Context";
+import OrderHistory from "./pages/OrderHistory";
 
 const routes = [
     {
-        path: '*',
+        path: '/',
         element: ( 
             <ContextProvider>
                 <App/>
@@ -38,16 +38,23 @@ const routes = [
                 <Dashboard/>
             </ContextProvider>
         ),
-        children: [
-            {
-                path: "orders",
-                element: <Orders/>,
-            },
-            {
-                path: "cart",
-                element: <Cart/>,
-            },
-        ]
+        // children: []
+    },
+    {
+        path: "/orders",
+        element: (
+            <ContextProvider>
+                <OrderHistory />
+            </ContextProvider>
+        ),
+    },
+    {
+        path: "/cart",
+        element: (
+            <ContextProvider>
+                <Cart />
+            </ContextProvider>
+        ),
     },
 ]
 

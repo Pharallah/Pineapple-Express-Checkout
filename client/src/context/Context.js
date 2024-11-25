@@ -11,24 +11,23 @@ function ContextProvider({ children }) {
     const [categories, setCategories] = useState([])
     const [items, setItems] = useState([])
     const [currentUser, setCurrentUser] = useState(false)
+    const [currentOrder, setCurrentOrder] = useState({})
 
-    // CHECKS FOR AUTHENTICATED USER
+
+    // console.log(`CUSTOMERS: ${customers}`)
+    // console.log(`ORDERS: ${orders}`)
+    // console.log(`ORDERITEMS: ${orderItems}`)
+    // console.log(`CATEGORIES: ${categories}`)
+    // console.log(`ITEMS: ${items}`)
+    // console.log(`CURRENT USER: ${currentUser}`)
+
     useEffect(() => {
-        fetch('/current_user')
-        .then(res => res.json())
-        .then(currentUser => setCurrentUser(currentUser))
-    }, [])
-    
-    useEffect(() => {
-        fetch('/customers')
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(customers => setCustomers(customers))
-    }, [])
+        for (const order of currentUser.orders) {
+          if (order.order_status === "Pending Checkout") {
+            setCurrentOrder(order)
+          }
+        }
+      }, [currentUser])
 
     useEffect(() => {
         fetch('/orders')
@@ -52,6 +51,30 @@ function ContextProvider({ children }) {
         .then(orderItems => setOrderItems(orderItems))
     }, [])
 
+    // CHECKS FOR AUTHENTICATED USER
+    useEffect(() => {
+        fetch('/current_user')
+        .then(res => {
+            if (res.ok) {
+                return res.json()
+            }
+        })
+        .then((user) => onSetCurrentUser(user))
+    }, [customers, orders, orderItems])
+    
+    useEffect(() => {
+        fetch('/customers')
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(customers => setCustomers(customers))
+    }, [])
+
+    
+
     useEffect(() => {
         fetch('/categories')
         .then(res => {
@@ -74,6 +97,10 @@ function ContextProvider({ children }) {
         .then(items => setItems(items))
     }, [])
 
+    // ****************** CALLBACK FUNCTIONS **********************
+
+    const onSetCurrentUser = (user) => setCurrentUser(user)
+
     function onSignup(user) {
         const updatedCustomers = [
             ...customers,
@@ -81,16 +108,46 @@ function ContextProvider({ children }) {
         ]
         setCustomers(updatedCustomers)
     }
+
+    function onNewOrder(newOrder) {
+        const updatedOrders = [
+            ...orders,
+            newOrder
+        ]
+        setOrders(updatedOrders)
+    }
+
+    function onNewOrderItem(newOrderItem) {
+        const updatedOrderItems = [
+            ...orderItems,
+            newOrderItem
+        ]
+        setOrderItems(updatedOrderItems)
+    }
+
+    function onUpdateOrderItem(updatedOrder) {
+        const updatedOrderItems = orderItems.filter((item) => {
+            if (item.id === updatedOrder.id) {
+                return updatedOrder
+            } else {
+                return item
+            }
+        })
+        setOrderItems(updatedOrderItems)
+    }
   
     return <Context.Provider value={
         {
+            currentOrder,
             currentUser, setCurrentUser,
             customers, setCustomers,
             orders, setOrders,
             orderItems, setOrderItems,
             categories, setCategories,
             items, setItems,
-            onSignup
+            onSignup,
+            onNewOrder, onNewOrderItem,
+            onUpdateOrderItem
         }
     }>{children}</Context.Provider>
 }

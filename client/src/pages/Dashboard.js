@@ -1,8 +1,8 @@
 import React from 'react'
 import NavBar from '../components/NavBar'
 import ItemContainer from '../components/ItemContainer'
-import { useContext } from 'react'
-import { Context } from '../context/Context'
+// import { useContext } from 'react'
+// import { Context } from '../context/Context'
 
 function Dashboard() {
   return (

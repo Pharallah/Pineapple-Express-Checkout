@@ -10,6 +10,8 @@ function Login() {
   const { currentUser, setCurrentUser } = useContext(Context)
   const navigate = useNavigate()
 
+  const onLogin = (user) => setCurrentUser(user)
+
   const formSchema = yup.object().shape({
     username: yup
       .string()
@@ -49,8 +51,7 @@ function Login() {
         }
       })
       .then(authenticatedUser => {
-        setCurrentUser(authenticatedUser)
-        console.log("currentUser has been set to logged in user")
+        onLogin(authenticatedUser)
       })
     }
   })
