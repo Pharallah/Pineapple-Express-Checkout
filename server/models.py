@@ -119,7 +119,7 @@ class Customer(db.Model, SerializerMixin):
 
 class Order(db.Model, SerializerMixin):
     __tablename__ = "orders"
-    serialize_rules = ('-customer.orders',)
+    serialize_rules = ('-customer',)
 
     id = db.Column(db.Integer, primary_key=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customers.id'))
@@ -235,6 +235,10 @@ class OrderItem(db.Model, SerializerMixin):
         if self.item:
             return self.item.price * self.quantity
         return 0 
+    
+    @property
+    def priceByQuantity(self):
+        return self.total_price
 
     @validates('item_id', 'order_id')
     def validates_foreign_keys(self, key, id):
