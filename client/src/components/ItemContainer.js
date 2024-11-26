@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Context } from '../context/Context';
 
 function ItemContainer() {
-    const { currentUser, items, orders, categories, onNewOrder, onNewOrderItem, onUpdateOrderItem } = useContext(Context);
+    const { currentUser, items, categories, onNewOrder, onNewOrderItem, onUpdateOrderItem } = useContext(Context);
     const [orderType, setOrderType] = useState("Take-Out");
 
     const handleToggle = () => {
@@ -73,6 +73,7 @@ function ItemContainer() {
     }
 
     function onAddItemClick(e, itemId) {
+        console.log('Add Item button clicked')
         e.preventDefault();
         const userOrderLength = currentUser.orders.length;
         

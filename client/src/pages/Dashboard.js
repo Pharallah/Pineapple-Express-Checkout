@@ -12,7 +12,7 @@ function Dashboard() {
     setOpen(true)
   }
 
-  console.log(open)
+  // console.log(open)
 
   return (
   <>

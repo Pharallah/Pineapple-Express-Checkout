@@ -15,12 +15,12 @@ function ContextProvider({ children }) {
     
 
 
-    // console.log(`CUSTOMERS: ${customers}`)
-    // console.log(`ORDERS: ${orders}`)
-    // console.log(`ORDERITEMS: ${orderItems}`)
-    // console.log(`CATEGORIES: ${categories}`)
-    // console.log(`ITEMS: ${items}`)
-    // console.log('Current Order:', currentUser)
+    console.log(`CUSTOMERS:`, customers)
+    console.log('ORDERS:', orders)
+    console.log(`ORDERITEMS:`, orderItems)
+    console.log(`CATEGORIES:`, categories)
+    console.log(`ITEMS:`, items)
+    console.log('Current Order:', currentUser)
     
     useEffect(() => {
         fetch('/customers')
@@ -139,6 +139,16 @@ function ContextProvider({ children }) {
         setOrderItems(updatedOrderItems)
     }
   
+    function onPlaceOrder(updatedOrder) {
+        const updatedOrders = orders.map((order) => {
+            if (order.id === updatedOrder.id) {
+                return updatedOrder
+            } else {
+                return order
+            }
+        })
+        setOrders(updatedOrders)
+    }
     return <Context.Provider value={
         {
             currentOrder,
@@ -150,7 +160,8 @@ function ContextProvider({ children }) {
             items, setItems,
             onSignup,
             onNewOrder, onNewOrderItem,
-            onUpdateOrderItem, onDeleteOrderItem
+            onUpdateOrderItem, onDeleteOrderItem,
+            onPlaceOrder
         }
     }>{children}</Context.Provider>
 }
