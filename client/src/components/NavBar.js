@@ -5,7 +5,7 @@ import { Context } from '../context/Context';
 import logo from '../assets/logo.jpg'
 
 function NavBar({ handleOpenCart }) {
-    const { setCurrentUser } = useContext(Context);
+    const { setCurrentUser, setCurrentOrder } = useContext(Context);
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
 
@@ -15,7 +15,6 @@ function NavBar({ handleOpenCart }) {
 
     const handleLogout = (e) => {
         e.preventDefault();
-
         fetch('/logout', {
             method: 'POST',
             headers: {
@@ -24,14 +23,20 @@ function NavBar({ handleOpenCart }) {
         })
             .then((res) => {
                 if (res.ok) {
-                    console.log(`Logout Response: ${res.status}`);
-                    setCurrentUser(false); // Clear user context
-                    navigate('/login');   // Redirect to login page
+                    return res.json()
                 } else {
-                    return res.json().then((err) => {
-                        console.error('Logout Failed:', err.message || 'Unknown error');
-                    });
+                    throw new Error("Logout Failed")
                 }
+            })
+            .then(() => {
+                navigate('/login');   // Redirect to login page
+                console.log("Should have navigated to login by now")
+
+                console.log("LOGOUT - Resetting CurrentUser..")
+                setCurrentUser(false); // Clear user context
+                
+                console.log("LOGOUT - Resetting CurrentOrder..")
+                setCurrentOrder([]) // Clear order context
             })
             .catch((error) => {
                 console.error('Error during logout:', error);

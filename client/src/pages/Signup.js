@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 function Signup() {
   // const navigate = useNavigate()
-  const { setCurrentUser, onSignup } = useContext(Context)
+  const { setCurrentUser, onSignup, recalculateCurrentOrder } = useContext(Context)
   const navigate = useNavigate()
   
   const formSchema = yup.object().shape({
@@ -69,7 +69,6 @@ function Signup() {
       })
       .then(newCustomer => {
         onSignup(newCustomer);
-        setCurrentUser(newCustomer);
         loginAfterSignup(newCustomer, values.password);
       })
       .catch(error => {
@@ -91,14 +90,15 @@ function Signup() {
     })
     .then(res => {
       if (res.status === 201) {
-        navigate('/');
         return res.json();
       } else {
         throw new Error ('Login Failed');
       }
     })
     .then(authenticatedUser => {
-      setCurrentUser(authenticatedUser)
+      setCurrentUser(authenticatedUser);
+      recalculateCurrentOrder(authenticatedUser);
+      navigate('/');
     })
   }
   

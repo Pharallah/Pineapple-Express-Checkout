@@ -13,18 +13,41 @@ function Cart({
     currentUser, 
     currentOrder,
     onDeleteOrderItem,
-    onPlaceOrder
-   } = useContext(Context)
+    onPlaceOrder,
+  } = useContext(Context)
+
+  // Make Special Instructions editable in Cart for each item.
+  // Make Quantity editable in Cart for each item
   
   const orderItems = currentOrder[0]?.order_items || [];
   const orderPrice = currentOrder[0]?.total_price || 0;
-  
-  if (!currentOrder && !orderPrice) {
+  const orderId = currentOrder[0]?.id || null;
+
+  if (!currentOrder && !orderPrice && !orderId) {
     return <div>Loading...</div>;
   }
-
-  console.log(currentOrder)
   
+  console.log("User:", currentUser)
+  console.log("Order:", currentOrder)
+  console.log("Order ID:", orderId)
+  console.log("OrderItems in Cart:", orderItems)
+  
+  function handlePlaceOrder(id) {
+    fetch(`/orders/${id}`, {
+      method: "PATCH",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        orderStatus: "Order Placed"
+      })
+    })
+    .then(res => res.json())
+    .then((updatedOrder) => {
+      onPlaceOrder(updatedOrder);
+    })
+  }
+
   function handleDeleteOrder(id) {
     fetch(`/orderitems/${id}`, {
       method: "DELETE",
@@ -39,27 +62,6 @@ function Cart({
         throw new Error('Failed to delete');
       }
     })
-  }
-
-  function handlePlaceOrder(id) {
-    fetch(`/orders/${id}`, {
-      method: "PATCH",
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        orderStatus: "Order Placed"
-      })
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error("Order placed failed.")
-      }
-      else {
-        return res.json()
-      }
-    })
-    .then((updatedOrder) => onPlaceOrder(updatedOrder))
   }
 
   return (
@@ -97,7 +99,7 @@ function Cart({
                     <div className="flow-root">
                       {orderItems.length === 0 ? (
                         <div className="flex justify-center items-center min-h-[42rem]">
-                          <p className="text-gray-500 text-sm">Cart is empty...</p>
+                          <p className="text-gray-500 text-sm">Your cart is looking kinda empty...</p>
                         </div>
                       ) : (
                         <ul role="list" className="-my-6 divide-y divide-gray-200">
@@ -154,7 +156,7 @@ function Cart({
                   <button
                     type="button"
                     onClick={() => {
-                      handlePlaceOrder(currentUser.id);
+                      handlePlaceOrder(orderId);
                       setOpen(false);
                     }}
                     className="flex w-full items-center justify-center rounded-md border border-black bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-gray-900"

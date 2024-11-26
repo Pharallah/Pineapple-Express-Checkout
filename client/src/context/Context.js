@@ -12,16 +12,75 @@ function ContextProvider({ children }) {
     const [items, setItems] = useState([])
     const [currentUser, setCurrentUser] = useState(false)
     const [currentOrder, setCurrentOrder] = useState([])
-    
 
+    // console.log(`CUSTOMERS:`, customers)
+    // console.log('ORDERS:', orders)
+    // console.log(`ORDERITEMS:`, orderItems)
+    // console.log(`CATEGORIES:`, categories)
+    // console.log(`ITEMS:`, items)
+    console.log('CurrentUSER:', currentUser)
+    console.log('CurrentORDER:', currentOrder)
 
-    console.log(`CUSTOMERS:`, customers)
-    console.log('ORDERS:', orders)
-    console.log(`ORDERITEMS:`, orderItems)
-    console.log(`CATEGORIES:`, categories)
-    console.log(`ITEMS:`, items)
-    console.log('Current Order:', currentUser)
+    // CurrentUser should only be triggered when: 
+    // user signs up, logs in, order (CRU) changes, full CRUD on orderItems
     
+    // Update currentUser via changes to orders & orderItems
+    useEffect(() => {
+        updateCurrentUser();
+    }, [orders, orderItems])
+
+    // Guards updateCurrentUser()
+    // useEffect(() => {
+    //     let shouldFetchCurrentUser = false;
+    //     if () {
+    //         shouldFetchCurrentUser = true;
+    //     }
+
+    //     if (shouldFetchCurrentUser) {
+    //         updateCurrentUser();
+    //     }
+    // }, [customers, orders, orderItems]);
+
+    function updateCurrentUser() {
+        fetch('/current_user')
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                }
+            })
+            .then((user) => {
+                setCurrentUser(user);
+                if (user) {
+                    recalculateCurrentOrder(user);
+                }
+            })
+            .catch((err) => console.error("Error fetching current user:", err));
+    }
+    
+    // Guards recalculateCurrentOrder from executing before currentUser has been set
+    useEffect(() => {
+        if (currentUser) {
+            recalculateCurrentOrder(currentUser);
+        }
+    }, [currentUser]);
+
+    function recalculateCurrentOrder(user) {
+        if (
+            !user || 
+            !user.orders || 
+            !Array.isArray(user.orders
+            )) {
+            setCurrentOrder([]); 
+            return;
+        };
+
+        const pendingOrder = user.orders.find((order) => order.order_status === "Pending Checkout");
+
+        setCurrentOrder(pendingOrder ? [pendingOrder] : []);
+    }
+    //  ******************************************************************
+    
+    // setCustomers
     useEffect(() => {
         fetch('/customers')
         .then(res => {
@@ -30,79 +89,65 @@ function ContextProvider({ children }) {
             }
             return res.json();
         })
-        .then(customers => setCustomers(customers))
+        .then(customers => {
+            setCustomers(customers);
+        })
     }, [])
 
-    // CHECKS FOR AUTHENTICATED USER
-    useEffect(() => {
-        fetch('/current_user')
-        .then(res => {
-            if (res.ok) {
-                return res.json()
-            }
-        })
-        .then((user) => {
-            setCurrentUser(user);
-        })
-    }, [customers, orders, orderItems])
-
-    useEffect(() => {
-        if (currentUser !== false) {
-          const pendingOrder = currentUser.orders.filter((order) => order.order_status === "Pending Checkout")
-          setCurrentOrder(pendingOrder)
-        }
-      }, [currentUser])
-
+    // setOrders
     useEffect(() => {
         fetch('/orders')
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(orders => setOrders(orders))
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(orders => setOrders(orders))
     }, [orderItems])
 
+    // setOrderItems
     useEffect(() => {
         fetch('/orderitems')
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(orderItems => setOrderItems(orderItems))
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(orderItems => setOrderItems(orderItems))
     }, [])
 
+    // setCategories
     useEffect(() => {
         fetch('/categories')
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(categories => setCategories(categories))
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(categories => setCategories(categories))
     }, [])
     
+    // setItems
     useEffect(() => {
         fetch('/items')
-        .then(res => {
-            if (!res.ok) {
-                throw new Error(`HTTP error! status: ${res.status}`);
-            }
-            return res.json();
-        })
-        .then(items => setItems(items))
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(items => setItems(items))
     }, [])
 
     // ****************** CALLBACK FUNCTIONS **********************
 
-    function onSignup(user) {
+    function onSignup(newCustomer) {
         const updatedCustomers = [
             ...customers,
-            user
+            newCustomer
         ]
         setCustomers(updatedCustomers)
     }
@@ -124,7 +169,7 @@ function ContextProvider({ children }) {
     }
 
     function onUpdateOrderItem(updatedOrder) {
-        const updatedOrderItems = orderItems.filter((item) => {
+        const updatedOrderItems = orderItems.map((item) => {
             if (item.id === updatedOrder.id) {
                 return updatedOrder
             } else {
@@ -136,7 +181,7 @@ function ContextProvider({ children }) {
 
     function onDeleteOrderItem(id) {
         const updatedOrderItems = orderItems.filter((item) => item.id !== id)
-        setOrderItems(updatedOrderItems)
+        setOrderItems(updatedOrderItems);
     }
   
     function onPlaceOrder(updatedOrder) {
@@ -147,18 +192,19 @@ function ContextProvider({ children }) {
                 return order
             }
         })
-        setOrders(updatedOrders)
+        setOrders(updatedOrders);
     }
     return <Context.Provider value={
         {
-            currentOrder,
-            currentUser, setCurrentUser,
+            currentUser, setCurrentUser, updateCurrentUser,
+            currentOrder, recalculateCurrentOrder, 
             customers, setCustomers,
             orders, setOrders,
             orderItems, setOrderItems,
             categories, setCategories,
             items, setItems,
-            onSignup,
+            onSignup, 
+            // onLogin,
             onNewOrder, onNewOrderItem,
             onUpdateOrderItem, onDeleteOrderItem,
             onPlaceOrder

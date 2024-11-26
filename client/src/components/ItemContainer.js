@@ -2,7 +2,14 @@ import React, { useContext, useState } from 'react';
 import { Context } from '../context/Context';
 
 function ItemContainer() {
-    const { currentUser, items, categories, onNewOrder, onNewOrderItem, onUpdateOrderItem } = useContext(Context);
+    const { 
+        currentUser, 
+        items, 
+        categories, 
+        onNewOrder, 
+        onNewOrderItem, 
+        onUpdateOrderItem 
+    } = useContext(Context);
     const [orderType, setOrderType] = useState("Take-Out");
 
     const handleToggle = () => {
@@ -73,29 +80,68 @@ function ItemContainer() {
     }
 
     function onAddItemClick(e, itemId) {
-        console.log('Add Item button clicked')
         e.preventDefault();
-        const userOrderLength = currentUser.orders.length;
-        
-        if (userOrderLength === 0) {
-            createNewOrder(itemId); 
-        } else {
-            for (let order of currentUser.orders) {
-                if (order.order_status === "Pending Checkout") {
-                    // Finds the OrderItems that match the Item clicked
-                    const orderItemsInOrder = order.order_items;
-                    const matchedOrderItem = orderItemsInOrder.find((item) => item.item_id === itemId);
     
-                    if (matchedOrderItem) {
-                        updateOrderItem(matchedOrderItem)
-                    } else {
-                        createOrderItem(order, itemId)
-                    }
-                    return;
-                }
+        const userOrders = currentUser.orders || [];
+    
+        // Check for a "Pending Checkout" order
+        const pendingOrder = userOrders.find(order => order.order_status === "Pending Checkout");
+    
+        if (pendingOrder) {
+            console.log("Found Pending Checkout order:", pendingOrder);
+    
+            // Check if the clicked item already exists in the pending order
+            const matchedOrderItem = pendingOrder.order_items.find(item => item.item_id === itemId);
+    
+            if (matchedOrderItem) {
+                console.log("Item already exists in order. Updating...");
+                updateOrderItem(matchedOrderItem);
+            } else {
+                console.log("Item not in the order. Adding new item...");
+                createOrderItem(pendingOrder, itemId);
             }
+        } else {
+            // If no Pending Checkout order exists, create a new one
+            console.log("No Pending Checkout order found. Creating a new order...");
+            createNewOrder(itemId);
         }
     }
+
+
+    // function onAddItemClick(e, itemId) {
+    //     console.log('Add Item button clicked')
+    //     e.preventDefault();
+    //     const userOrderLength = currentUser.orders.length;
+    //     // const pendingOrder = currentUser.orders.find((order) => order.order_status === 'Pending Checkout')
+    //     // console.log("Pending Order:", pendingOrder)
+    //     // If user has NO orders OR has no pending orders...create NEW ORDER
+    //     if (userOrderLength === 0) {
+    //         createNewOrder(itemId); 
+    //     } else {
+    //         let foundPendingCheckoutOrder = false;
+
+    //         for (let order of currentUser.orders) {
+    //             if (order.order_status === "Pending Checkout") {
+    //                 foundPendingCheckoutOrder = true;
+    //                 // Finds the OrderItems that match the Item clicked
+    //                 const orderItemsInOrder = order.order_items;
+    //                 const matchedOrderItem = orderItemsInOrder.find((item) => item.item_id === itemId);
+    
+    //                 if (matchedOrderItem) {
+    //                     console.log('Choosing to UPDATE ORDER')
+    //                     updateOrderItem(matchedOrderItem)
+    //                 } else {
+    //                     console.log('Choosing to POST an ORDER')
+    //                     createOrderItem(order, itemId)
+    //                 }
+    //                 return;
+    //             }
+    //         }
+    //         if (!foundPendingCheckoutOrder) {
+    //             createNewOrder(itemId)
+    //         }
+    //     }
+    // }
 
     return (
         <div className="bg-white">

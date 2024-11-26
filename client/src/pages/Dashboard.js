@@ -12,8 +12,6 @@ function Dashboard() {
     setOpen(true)
   }
 
-  // console.log(open)
-
   return (
   <>
     <NavBar handleOpenCart={handleOpenCart} />

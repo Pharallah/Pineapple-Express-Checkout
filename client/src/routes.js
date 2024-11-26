@@ -19,7 +19,7 @@ const routes = [
         path: "/signup",
         element: (
             <ContextProvider>
-                <Signup/>
+                <Signup />
             </ContextProvider>
         ),
     },
@@ -35,7 +35,7 @@ const routes = [
         path: "/dashboard",
         element: (
             <ContextProvider>
-                <Dashboard/>
+                <Dashboard />
             </ContextProvider>
         ),
         children: [
@@ -50,9 +50,9 @@ const routes = [
             {
                 path: "cart",
                 element: (
-                    <ContextProvider>
+                    // <ContextProvider>
                         <Cart />
-                    </ContextProvider>
+                    // </ContextProvider>
                 ),
             },
         ]
