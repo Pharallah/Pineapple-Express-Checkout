@@ -3,6 +3,9 @@ module.exports = {
   content: ["./src/**/*.{html,js}"],
   theme: {
     extend: {
+      transitionDuration: {
+        '1500': '1500ms', // Add a custom duration of 1.5 seconds
+      },
       width: {
         '18': '4.5rem',
         '22': '5.5rem',

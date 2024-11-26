@@ -4,7 +4,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Context } from '../context/Context';
 import logo from '../assets/logo.jpg'
 
-function NavBar() {
+function NavBar({ handleOpenCart }) {
     const { setCurrentUser } = useContext(Context);
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
@@ -41,7 +41,10 @@ function NavBar() {
     const navigation = [
         { name: 'Home', href: '/dashboard' },
         { name: 'Order History', href: 'orders' },
-        { name: 'Cart', href: 'cart' },
+        { 
+            name: 'Cart', 
+            onClick: handleOpenCart,
+        },
         {
             name: `Logout`,
             onClick: handleLogout,

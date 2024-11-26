@@ -12,6 +12,7 @@ function ContextProvider({ children }) {
     const [items, setItems] = useState([])
     const [currentUser, setCurrentUser] = useState(false)
     const [currentOrder, setCurrentOrder] = useState([])
+    
 
 
     // console.log(`CUSTOMERS: ${customers}`)
@@ -19,7 +20,8 @@ function ContextProvider({ children }) {
     // console.log(`ORDERITEMS: ${orderItems}`)
     // console.log(`CATEGORIES: ${categories}`)
     // console.log(`ITEMS: ${items}`)
-    // console.log(currentOrder)
+    // console.log('Current Order:', currentUser)
+    
     useEffect(() => {
         fetch('/customers')
         .then(res => {
@@ -60,7 +62,7 @@ function ContextProvider({ children }) {
             return res.json();
         })
         .then(orders => setOrders(orders))
-    }, [])
+    }, [orderItems])
 
     useEffect(() => {
         fetch('/orderitems')
@@ -97,8 +99,6 @@ function ContextProvider({ children }) {
 
     // ****************** CALLBACK FUNCTIONS **********************
 
-    const onSetCurrentUser = (user) => setCurrentUser(user)
-
     function onSignup(user) {
         const updatedCustomers = [
             ...customers,
@@ -133,6 +133,11 @@ function ContextProvider({ children }) {
         })
         setOrderItems(updatedOrderItems)
     }
+
+    function onDeleteOrderItem(id) {
+        const updatedOrderItems = orderItems.filter((item) => item.id !== id)
+        setOrderItems(updatedOrderItems)
+    }
   
     return <Context.Provider value={
         {
@@ -145,7 +150,7 @@ function ContextProvider({ children }) {
             items, setItems,
             onSignup,
             onNewOrder, onNewOrderItem,
-            onUpdateOrderItem
+            onUpdateOrderItem, onDeleteOrderItem
         }
     }>{children}</Context.Provider>
 }

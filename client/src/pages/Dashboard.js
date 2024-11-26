@@ -6,12 +6,17 @@ import ItemContainer from '../components/ItemContainer'
 import Cart from './Cart'
 
 function Dashboard() {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
 
+  function handleOpenCart() {
+    setOpen(true)
+  }
+
+  console.log(open)
 
   return (
   <>
-    <NavBar />
+    <NavBar handleOpenCart={handleOpenCart} />
     <ItemContainer/>
 
     {open && <Cart open={open} setOpen={setOpen}/>}
