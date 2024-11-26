@@ -213,35 +213,14 @@ class Orders(Resource):
         except Exception as e:
             return {'errors': 'Failed to add order to database'}, 500
 
-class OrderHistory(Resource):
     def get(self, id):
-        # All Orders of a particular customer if their order_status == "Order Placed"
-
-        orders = db.session.query(Order).join(Customer).filter(Customer.id == id).all()
-        orders_placed = [order.to_dict(rules=('-customer',)) for order in orders if order.order_status == 'Order Placed']
-
-        if orders_placed:
-            return make_response(orders_placed, 200)
-        else:
-            return {'error': 'Unexpected Server Error'}, 500
-    
-    def delete(self, id):
         order = Order.query.filter(Order.id == id).first()
-        if not order:
-            abort(404, "Order not found")
-        db.session.delete(order)
-        db.session.commit()
-        return {}, 204
-
-class OrderByCustomerId(Resource):
-    def get(self, id):
-        order = Order.query.filter(Order.customer_id == id).first()
         if not order:
             abort(404, "Order not found")
         return order.to_dict(rules=('-customer', '-order_items')), 200
     
     def patch(self, id):
-        order = Order.query.filter(Order.customer_id == id).first()
+        order = Order.query.filter(Order.id == id).first()
 
         if not order:
             abort(404, "Order not found")
@@ -274,6 +253,77 @@ class OrderByCustomerId(Resource):
             return {'errors': 'Failed to update order'}, 500
 
         order_dict = order.to_dict(rules=('-customer', '-order_items'))
+        return make_response(order_dict, 202)
+
+    def delete(self, id):
+        order = Order.query.filter(Order.id == id).first()
+        if not order:
+            abort(404, "Order not found")
+        db.session.delete(order)
+        db.session.commit()
+        return {}, 204
+
+class OrderHistory(Resource):
+    def get(self, id):
+        # All Orders of a particular customer if their order_status == "Order Placed"
+
+        orders = db.session.query(Order).join(Customer).filter(Customer.id == id).all()
+        orders_placed = [order.to_dict(rules=('-customer',)) for order in orders if order.order_status == 'Order Placed']
+
+        if orders_placed:
+            return make_response(orders_placed, 200)
+        else:
+            return {'error': 'Unexpected Server Error'}, 500
+    
+    def delete(self, id):
+        order = Order.query.filter(Order.id == id).first()
+        if not order:
+            abort(404, "Order not found")
+        db.session.delete(order)
+        db.session.commit()
+        return {}, 204
+
+class OrderByCustomerId(Resource):
+    def get(self, id):
+        order = Order.query.filter(Order.customer_id == id).first()
+        if not order:
+            abort(404, "Order not found")
+        return order.to_dict(rules=('-customer', '-order_items')), 200
+    
+    def patch(self, id):
+        currentOrder = db.session.query(Order).join(Customer).filter(Customer.id == id and Order.order_status == 'Pending Checkout').first()
+
+        if not currentOrder:
+            abort(404, "Order not found")
+
+        json = request.get_json()
+
+        # Validate input fields
+        errors = []
+        if 'orderType' in json:
+            try:
+                currentOrder.order_type = json['orderType']
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if 'pickupTime' in json:
+            try:
+                currentOrder.pickup_time = datetime_formatter(json['pickupTime'])
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if 'orderStatus' in json:
+            try:
+                currentOrder.order_status = json['orderStatus']
+            except ValueError as e:
+                errors.append({'error': str(e)})
+        if errors:
+            return {'errors': errors}, 400
+
+        try:
+            db.session.commit()
+        except Exception as e:
+            return {'errors': 'Failed to update order'}, 500
+
+        order_dict = currentOrder.to_dict(rules=('-customer',))
         return make_response(order_dict, 202)
 
     def delete(self, id):
