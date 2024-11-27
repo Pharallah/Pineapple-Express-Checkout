@@ -174,33 +174,39 @@ class Order(db.Model, SerializerMixin):
         
         return order_type
     
-    @validates('pickup_time')
-    def validate_pickup_time(self, key, pickup_time):
-        if pickup_time is None:
-            now = datetime.now()
-            if self.order_type == 'Catering':
-                # Default for Catering orders
-                return now + timedelta(hours=24)
-            elif self.order_type == 'Take-Out':
-                # Default for Take-Out orders
-                return now + timedelta(minutes=20)
+    from datetime import datetime, timedelta
 
-        # Validate provided pickup_time
-        if not isinstance(pickup_time, datetime):
-            raise ValueError('Pickup time must be a valid datetime object.')
-
+@validates('pickup_time')
+def validate_pickup_time(self, key, pickup_time):
+    if pickup_time is None:
         now = datetime.now()
-
         if self.order_type == 'Catering':
-            if pickup_time < now + timedelta(hours=24):
-                raise ValueError('For Catering orders, pickup time must be at least 24 hours in advance.')
+            # Default for Catering orders
+            return now + timedelta(hours=24)
         elif self.order_type == 'Take-Out':
-            if pickup_time < now + timedelta(minutes=10):
-                raise ValueError('For Take-Out orders, pickup time must be made at least 10 minutes in advance.')
-            if pickup_time > now + timedelta(hours=2):
-                raise ValueError('For Take-Out orders, pickup time cannot be more than 2 hours in the future.')
+            # Default for Take-Out orders
+            return now + timedelta(minutes=20)
 
-        return pickup_time
+    # Ensure pickup_time is a valid datetime object
+    if not isinstance(pickup_time, datetime):
+        raise ValueError('Pickup time must be a valid datetime object.')
+
+    # Strip timezone information if pickup_time is offset-aware
+    pickup_time = pickup_time.replace(tzinfo=None)
+
+    now = datetime.now()  # Current time, naive
+
+    if self.order_type == 'Catering':
+        if pickup_time < now + timedelta(hours=24) or pickup_time > now + timedelta(days=7):
+            raise ValueError('For Catering orders, pickup time must be between 24 hours and 7 days in advance.')
+    elif self.order_type == 'Take-Out':
+        if pickup_time < now + timedelta(minutes=20):
+            raise ValueError('For Take-Out orders, pickup time must be at least 20 minutes in advance.')
+        end_of_day = now.replace(hour=20, minute=0, second=0, microsecond=0)
+        if pickup_time > end_of_day:
+            raise ValueError('For Take-Out orders, pickup time cannot be after 8:00 PM.')
+
+    return pickup_time
     
     @validates('order_status')
     def validate_order_status(self, key, order_status):

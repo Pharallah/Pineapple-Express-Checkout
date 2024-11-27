@@ -4,7 +4,9 @@
 from flask import request, make_response, abort, redirect, url_for
 from flask_restful import Resource
 from flask_login import login_user, logout_user, login_required, current_user
+from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
+from datetime import datetime, timedelta, timezone
 
 # Local imports
 from config import app, db, api, login_manager
@@ -15,7 +17,7 @@ from operations import datetime_formatter, custom_titled, capitalize_sentences
 # Flask-Login User Loader
 @login_manager.user_loader
 def load_user(customer_id):
-    return Customer.query.get(int(customer_id))
+    return db.session.get(Customer, int(customer_id))
 
 class CurrentUser(Resource):
     def get(self):
@@ -27,7 +29,7 @@ class CurrentUser(Resource):
                     
                     order_total_price = 0
                     for item in order.get('order_items', []):
-                        order_item_obj = OrderItem.query.get(item['id'])
+                        order_item_obj = db.session.get(OrderItem, item['id'])
                         item['priceByQuantity'] = float(order_item_obj.priceByQuantity)
 
                         price = float(item['item']['price'])
@@ -35,6 +37,7 @@ class CurrentUser(Resource):
                         order_total_price += price * quantity
 
                     order['total_price'] = order_total_price
+
             return user_dict, 200
         else:
             return False
@@ -181,7 +184,7 @@ class CustomerById(Resource):
 
 class Orders(Resource):
     def get(self):
-        orders = [order.to_dict(rules=('-customer', '-order_items')) for order in Order.query.all()]
+        orders = [order.to_dict(rules=('-customer',)) for order in Order.query.all()]
         
         if orders:
             return make_response(orders, 200)
@@ -206,62 +209,12 @@ class Orders(Resource):
             )
             db.session.add(new_order)
             db.session.commit()
-            order_dict = new_order.to_dict(rules=('-customer', '-order_items'))
+            order_dict = new_order.to_dict(rules=('-customer',))
             return make_response(order_dict, 200)
         except ValueError as e:
             return {'errors': str(e)}, 400
         except Exception as e:
             return {'errors': 'Failed to add order to database'}, 500
-
-    def get(self, id):
-        order = Order.query.filter(Order.id == id).first()
-        if not order:
-            abort(404, "Order not found")
-        return order.to_dict(rules=('-customer', '-order_items')), 200
-    
-    def patch(self, id):
-        order = Order.query.filter(Order.id == id).first()
-
-        if not order:
-            abort(404, "Order not found")
-
-        json = request.get_json()
-
-        # Validate input fields
-        errors = []
-        if 'orderType' in json:
-            try:
-                order.order_type = json['orderType']
-            except ValueError as e:
-                errors.append({'error': str(e)})
-        if 'pickupTime' in json:
-            try:
-                order.pickup_time = datetime_formatter(json['pickupTime'])
-            except ValueError as e:
-                errors.append({'error': str(e)})
-        if 'orderStatus' in json:
-            try:
-                order.order_status = json['orderStatus']
-            except ValueError as e:
-                errors.append({'error': str(e)})
-        if errors:
-            return {'errors': errors}, 400
-
-        try:
-            db.session.commit()
-        except Exception as e:
-            return {'errors': 'Failed to update order'}, 500
-
-        order_dict = order.to_dict(rules=('-customer', '-order_items'))
-        return make_response(order_dict, 202)
-
-    def delete(self, id):
-        order = Order.query.filter(Order.id == id).first()
-        if not order:
-            abort(404, "Order not found")
-        db.session.delete(order)
-        db.session.commit()
-        return {}, 204
 
 class OrderHistory(Resource):
     def get(self, id):
@@ -283,36 +236,37 @@ class OrderHistory(Resource):
         db.session.commit()
         return {}, 204
 
-class OrderByCustomerId(Resource):
+class OrderById(Resource):
     def get(self, id):
-        order = Order.query.filter(Order.customer_id == id).first()
+        order = Order.query.filter(Order.id == id).first()
         if not order:
             abort(404, "Order not found")
-        return order.to_dict(rules=('-customer', '-order_items')), 200
+        return order.to_dict(rules=('-customer',)), 200
     
     def patch(self, id):
-        currentOrder = db.session.query(Order).join(Customer).filter(Customer.id == id and Order.order_status == 'Pending Checkout').first()
-
-        if not currentOrder:
+        order = Order.query.filter(Order.id == id).first()
+        
+        if not order:
             abort(404, "Order not found")
 
         json = request.get_json()
-
-        # Validate input fields
         errors = []
+
         if 'orderType' in json:
             try:
-                currentOrder.order_type = json['orderType']
+                order.order_type = json['orderType']
             except ValueError as e:
                 errors.append({'error': str(e)})
         if 'pickupTime' in json:
             try:
-                currentOrder.pickup_time = datetime_formatter(json['pickupTime'])
+                # Convert ISO string to datetime and strip timezone
+                pickup_time = datetime.fromisoformat(json['pickupTime'].replace("Z", "+00:00")).replace(tzinfo=None)
+                order.pickup_time = pickup_time
             except ValueError as e:
                 errors.append({'error': str(e)})
         if 'orderStatus' in json:
             try:
-                currentOrder.order_status = json['orderStatus']
+                order.order_status = json['orderStatus']
             except ValueError as e:
                 errors.append({'error': str(e)})
         if errors:
@@ -323,7 +277,7 @@ class OrderByCustomerId(Resource):
         except Exception as e:
             return {'errors': 'Failed to update order'}, 500
 
-        order_dict = currentOrder.to_dict(rules=('-customer',))
+        order_dict = order.to_dict(rules=('-customer',))
         return make_response(order_dict, 202)
 
     def delete(self, id):
@@ -333,6 +287,69 @@ class OrderByCustomerId(Resource):
         db.session.delete(order)
         db.session.commit()
         return {}, 204
+
+
+# class OrderByCustomerId(Resource):
+    # def get(self, id):
+    #     order = Order.query.filter(Order.customer_id == id).first()
+    #     if not order:
+    #         abort(404, "Order not found")
+    #     return order.to_dict(rules=('-customer',)), 200
+    
+    # def patch(self, id):
+    #     currentOrder = (
+    #         db.session.query(Order)
+    #         .join(Customer)
+    #         .filter(
+    #             and_(
+    #                 Customer.id == id, 
+    #                 Order.order_status == 'Pending Checkout'
+    #                 ))
+    #         .first()
+    #     )
+    #     if not currentOrder:
+    #         abort(404, "Order not found")
+
+    #     json = request.get_json()
+
+    #     # Validate input fields
+    #     errors = []
+    #     if 'orderType' in json:
+    #         try:
+    #             currentOrder.order_type = json['orderType']
+    #         except ValueError as e:
+    #             errors.append({'error': str(e)})
+    #     if 'pickupTime' in json:
+    #         try:
+    #             currentOrder.pickup_time = datetime_formatter(json['pickupTime'])
+    #         except ValueError as e:
+    #             errors.append({'error': str(e)})
+    #     if 'orderStatus' in json:
+    #         try:
+    #             currentOrder.order_status = json['orderStatus']
+    #             currentOrder.pickup_time = datetime.now() + timedelta(minutes=20)
+    #         except ValueError as e:
+    #             errors.append({'error': str(e)})
+    #     if errors:
+    #         return {'errors': errors}, 400
+
+    #     try:
+    #         db.session.commit()
+    #     except Exception as e:
+    #         return {'errors': 'Failed to update order'}, 500
+
+    #     order_dict = currentOrder.to_dict(rules=('-customer',))
+    #     # breakpoint()
+    #     return make_response(order_dict, 202)
+
+    # def delete(self, id):
+    #     # NEEDS REFACTORED
+    #     order = Order.query.filter(Order.customer_id == id).first()
+    #     if not order:
+    #         abort(404, "Order not found")
+    #     db.session.delete(order)
+    #     db.session.commit()
+    #     return {}, 204
 
 class OrderItems(Resource):
     def get(self):
@@ -575,8 +592,9 @@ class ItemById(Resource):
 api.add_resource(Customers, '/customers')
 api.add_resource(CustomerById, '/customers/<int:id>')
 api.add_resource(Orders, '/orders')
+api.add_resource(OrderById, '/orders/<int:id>')
 api.add_resource(OrderHistory, '/order_history/<int:id>')
-api.add_resource(OrderByCustomerId, '/orders/<int:id>')
+# api.add_resource(OrderByCustomerId, '/orders/<int:id>')
 api.add_resource(OrderItems, '/orderitems')
 api.add_resource(OrderItemById, '/orderitems/<int:id>')
 api.add_resource(Categories, '/categories')
