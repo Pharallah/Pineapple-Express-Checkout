@@ -152,7 +152,7 @@ function ItemContainer() {
                         className="peer sr-only"
                     />
                     <div 
-                        className="peer relative flex h-12 w-64 items-center rounded-full bg-black px-8 after:absolute after:left-2 after:h-9 after:w-28 after:rounded-full after:bg-white/25 after:duration-300 after:transition-all after:content-[''] peer-checked:after:translate-x-32 peer-focus:outline-none text-lg text-white"
+                        className="peer relative flex h-12 w-64 items-center rounded-full bg-black px-8 after:absolute after:left-2 after:h-8 after:w-28 after:rounded-full after:bg-white/25 after:duration-900 after:transition-all after:content-[''] peer-checked:after:translate-x-32 peer-focus:outline-none text-lg text-white"
                     >
                         <span
                             className={`absolute left-6 text-lg font-medium transition-colors ${
@@ -248,6 +248,7 @@ function ItemContainer() {
                     </div>
                 ))}
             </div>
+
         
         {/* Modal */}
         {isModalOpen && (
@@ -313,7 +314,7 @@ function ItemContainer() {
                         </select>
                     </div>
 
-                    {/* Save and Discard Buttons */}
+            
                     <div className="flex justify-between p-6 border-t border-gray-200">
                         <button
                             onClick={toggleModal}
@@ -331,6 +332,8 @@ function ItemContainer() {
                 </div>
             </div>
         )}
+
+
     </div>
     );
 }
