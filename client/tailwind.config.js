@@ -40,6 +40,13 @@ module.exports = {
         '4.75': '1.1875rem', // ~19px
         '4.8': '1.2rem',     // ~19.2px
         '4.9': '1.225rem',   // ~19.6px
+        ...Array.from({ length: (64 - 50) * 2 + 1 }, (_, i) => 50 + i * 0.5).reduce(
+          (acc, value) => {
+            acc[value] = `${value / 4}rem`; // Tailwind's spacing values are in multiples of 0.25rem
+            return acc;
+          },
+          {}
+        ),
       },
     },
   },

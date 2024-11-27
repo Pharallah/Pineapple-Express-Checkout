@@ -12,9 +12,9 @@ function ItemContainer() {
     } = useContext(Context);
     const [orderType, setOrderType] = useState("Take-Out");
 
-    console.log("Is Modal Open?", isModalOpen)
-    console.log("Date:", selectedDate)
-    console.log("Time", selectedTime)
+    // console.log("Is Modal Open?", isModalOpen)
+    // console.log("Date:", selectedDate)
+    // console.log("Time", selectedTime)
 
 
     const toggleModal = () => {
@@ -152,21 +152,21 @@ function ItemContainer() {
                         className="peer sr-only"
                     />
                     <div 
-                        className="peer relative flex h-8 w-42 items-center rounded-full bg-black px-2 after:absolute after:left-1 after:h-6 after:w-20 after:rounded-full after:bg-white/25 after:duration-300 after:transition-all after:content-[''] peer-checked:after:translate-x-20 peer-focus:outline-none text-sm text-white"
+                        className="peer relative flex h-12 w-64 items-center rounded-full bg-black px-8 after:absolute after:left-2 after:h-9 after:w-28 after:rounded-full after:bg-white/25 after:duration-300 after:transition-all after:content-[''] peer-checked:after:translate-x-32 peer-focus:outline-none text-lg text-white"
                     >
                         <span
-                        className={`absolute left-3 text-md font-bold transition-colors ${
-                            orderType === "Catering" ? "text-gray-400" : "text-white"
-                        }`}
+                            className={`absolute left-6 text-lg font-medium transition-colors ${
+                                orderType === "Catering" ? "text-gray-400" : "text-white"
+                            }`}
                         >
-                        Take-Out
+                            Take-Out
                         </span>
                         <span
-                        className={`absolute right-3 text-md font-bold transition-colors ${
-                            orderType === "Catering" ? "text-white" : "text-gray-400"
-                        }`}
+                            className={`absolute right-7 text-lg font-medium transition-colors ${
+                                orderType === "Catering" ? "text-white" : "text-gray-400"
+                            }`}
                         >
-                        Catering
+                            Catering
                         </span>
                     </div>
                 </label>
@@ -175,22 +175,22 @@ function ItemContainer() {
                 <button
                     type="button"
                     onClick={toggleModal}
-                    className="text-white bg-black hover:bg-gray-900 border border-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-700 font-medium rounded-lg text-sm px-5 py-2.5 inline-flex items-center"
-                    >
+                    className="text-white bg-black hover:bg-gray-900 border border-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-700 font-medium rounded-full text-lg h-12 px-8 inline-flex items-center"
+                >
+                    Schedule Pickup { "\u00A0" }{ "\u00A0" }
                     <svg
-                        className="w-4 h-4 mr-2 text-gray-300"
+                        className="w-7 h-7 text-white"
                         aria-hidden="true"
                         xmlns="http://www.w3.org/2000/svg"
                         fill="currentColor"
                         viewBox="0 0 24 24"
                     >
                         <path
-                        fillRule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
-                        clipRule="evenodd"
+                            fillRule="evenodd"
+                            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v4a1 1 0 0 0 .293.707l3 3a1 1 0 0 0 1.414-1.414L13 11.586V8Z"
+                            clipRule="evenodd"
                         />
                     </svg>
-                    Schedule Pickup
                 </button>
             </div>
         </div>
