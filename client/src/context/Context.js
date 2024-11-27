@@ -13,9 +13,10 @@ function ContextProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(false)
     const [currentOrder, setCurrentOrder] = useState([])
 
+    const [orderType, setOrderType] = useState("Take-Out");
     const [isModalOpen, setModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
+    const [selectedTime, setSelectedTime] = useState("12:00");
 
     // console.log(`CUSTOMERS:`, customers)
     // console.log('ORDERS:', orders)
@@ -200,10 +201,10 @@ function ContextProvider({ children }) {
             categories, setCategories,
             items, setItems,
             onSignup, 
-            // onLogin,
             onNewOrder, onNewOrderItem,
             onUpdateOrderItem, onDeleteOrderItem,
             onUpdateQuantity, onPlaceOrder,
+            orderType, setOrderType,
             isModalOpen, setModalOpen,
             selectedDate, setSelectedDate,
             selectedTime, setSelectedTime

@@ -13,6 +13,9 @@ function Cart({
     currentUser, 
     currentOrder,
     setCurrentOrder,
+    orderType,
+    selectedDate,
+    selectedTime,
     onPlaceOrder,
     onUpdateQuantity,
     onDeleteOrderItem,
@@ -24,30 +27,37 @@ function Cart({
   const orderItems = currentOrder[0]?.order_items || [];
   const orderPrice = currentOrder[0]?.total_price || 0;
   const orderId = currentOrder[0]?.id || null;
-
+  const pickupTime = `${selectedDate}T${selectedTime}:00`;  
+  
   if (!currentOrder && !orderPrice && !orderId) {
     return <div>Loading...</div>;
   }
   
-  console.log(instructions)
+  // console.log(instructions)
   // console.log("User:", currentUser)
   // console.log("Order:", currentOrder)
   // console.log("Order ID:", orderId)
   // console.log("OrderItems in Cart:", orderItems)
   
   function handlePlaceOrder(id) {
+    console.log("PickupTime", pickupTime)
+    console.log("Order Type", orderType)
+
     fetch(`/orders/${id}`, {
       method: "PATCH",
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        orderStatus: "Order Placed"
+        orderStatus: "Order Placed",
+        pickupTime: pickupTime,
+        orderType: orderType
       })
     })
     .then(res => res.json())
-    .then((updatedOrder) => {
-      onPlaceOrder(updatedOrder);
+    .then((placedOrder) => {
+      console.log("POST PLACE ORDER:", placedOrder)
+      onPlaceOrder(placedOrder);
     })
   }
 

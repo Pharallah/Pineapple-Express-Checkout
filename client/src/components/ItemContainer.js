@@ -6,15 +6,15 @@ function ItemContainer() {
         currentUser, items, 
         categories, onNewOrder, 
         onNewOrderItem, onUpdateOrderItem,
+        orderType, setOrderType,
         isModalOpen, setModalOpen,
         selectedDate, setSelectedDate,
         selectedTime, setSelectedTime
     } = useContext(Context);
-    const [orderType, setOrderType] = useState("Take-Out");
 
     // console.log("Is Modal Open?", isModalOpen)
-    // console.log("Date:", selectedDate)
-    // console.log("Time", selectedTime)
+    console.log("Date:", selectedDate)
+    console.log("Time", selectedTime)
 
 
     const toggleModal = () => {
@@ -295,7 +295,7 @@ function ItemContainer() {
                         </label>
                         <select
                             value={selectedTime}
-                            onChange={(e) => setSelectedTime(e.target.value)}
+                            onChange={(e) => handleTimeChange(e)}
                             className="block w-full bg-gray-100 border border-gray-300 text-lg text-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg p-3"
                         >
                             {/* Generate options dynamically */}
