@@ -203,7 +203,10 @@ function ContextProvider({ children }) {
             // onLogin,
             onNewOrder, onNewOrderItem,
             onUpdateOrderItem, onDeleteOrderItem,
-            onUpdateQuantity, onPlaceOrder
+            onUpdateQuantity, onPlaceOrder,
+            isModalOpen, setModalOpen,
+            selectedDate, setSelectedDate,
+            selectedTime, setSelectedTime
         }
     }>{children}</Context.Provider>
 }

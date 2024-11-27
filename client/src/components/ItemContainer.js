@@ -3,17 +3,19 @@ import { Context } from '../context/Context';
 
 function ItemContainer() {
     const { 
-        currentUser, 
-        items, 
-        categories, 
-        onNewOrder, 
-        onNewOrderItem, 
-        onUpdateOrderItem 
+        currentUser, items, 
+        categories, onNewOrder, 
+        onNewOrderItem, onUpdateOrderItem,
+        isModalOpen, setModalOpen,
+        selectedDate, setSelectedDate,
+        selectedTime, setSelectedTime
     } = useContext(Context);
     const [orderType, setOrderType] = useState("Take-Out");
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState("");
-    const [selectedTime, setSelectedTime] = useState("");
+
+    console.log("Is Modal Open?", isModalOpen)
+    console.log("Date:", selectedDate)
+    console.log("Time", selectedTime)
+
 
     const toggleModal = () => {
         setModalOpen(!isModalOpen);
@@ -24,7 +26,16 @@ function ItemContainer() {
     };
 
     const handleTimeChange = (e) => {
-        setSelectedTime(e.target.value);
+        const inputTime = e.target.value;
+        const minTime = "11:00";
+        const maxTime = "20:00";
+    
+        if (inputTime >= minTime && inputTime <= maxTime) {
+            setSelectedTime(inputTime);
+        } else {
+            alert("Please select a time between 11:00 and 20:00!");
+            e.target.value = "11:00"; // Reset invalid input
+        }
     };
 
     const handleSave = () => {
@@ -185,15 +196,15 @@ function ItemContainer() {
         </div>
 
         {/* Products Section */}
-        <div className="max-w-2xl mx-auto py-2 px-4 sm:py-2 sm:px-6 lg:max-w-7xl lg:px-8">
+        <div className="max-w-2xl mx-auto py-2 px-4 sm:py-5 sm:px-6 lg:max-w-7xl lg:px-8">
                 <h2 className="sr-only">Products</h2>
 
                 {categories.map((category) => (
-                    <div key={category.id} className="mb-4">
+                    <div key={category.id} className="mb-8">
                         {/* Category Name */}
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                            {category.name}
-                        </h3>
+                        <h1 className="text-lg font-semibold text-gray-900 mb-5">
+                            <u>{category.name.toUpperCase()}</u>
+                        </h1>
 
                         {/* Items under this category */}
                         <div className="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
@@ -239,72 +250,87 @@ function ItemContainer() {
             </div>
         
         {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90">
-        <div className="bg-gray-900 text-white rounded-lg shadow-lg max-w-sm w-full">
-          <div className="flex items-center justify-between p-4 border-b border-gray-700">
-            <h3 className="text-lg font-semibold">Schedule Pickup</h3>
-            <button
-              onClick={toggleModal}
-              className="text-gray-400 hover:bg-gray-800 rounded-lg p-1"
-            >
-              <svg
-                className="w-4 h-4"
-                aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 14 14"
-              >
-                <path
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="p-4">
-            {/* Date Picker */}
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Select Date
-            </label>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-              className="block w-full bg-gray-800 border-gray-600 text-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-            {/* Time Picker */}
-            <label className="block text-sm font-medium text-gray-400 mt-4 mb-2">
-              Select Time
-            </label>
-            <input
-              type="time"
-              value={selectedTime}
-              onChange={handleTimeChange}
-              className="block w-full bg-gray-800 border-gray-600 text-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
-          {/* Save and Discard Buttons */}
-          <div className="flex justify-end p-4 border-t border-gray-700">
-            <button
-              onClick={toggleModal}
-              className="text-gray-300 bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 mr-2 hover:bg-gray-700"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="text-white bg-blue-600 hover:bg-blue-700 rounded-lg px-4 py-2"
-            >
-              Save
-            </button>
-          </div>
-        </div>
-      </div>
-      )}
+        {isModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white text-black rounded-lg shadow-lg max-w-md w-full">
+                    <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                        <h3 className="text-xl font-semibold">Schedule Pickup</h3>
+                        <button
+                            onClick={toggleModal}
+                            className="text-gray-600 hover:bg-gray-100 rounded-lg p-2"
+                        >
+                            <svg
+                                className="w-6 h-6"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 14 14"
+                            >
+                                <path
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                    <div className="p-6">
+                        {/* Date Picker */}
+                        <label className="block text-lg font-medium text-gray-700 mb-3">
+                            Select Date
+                        </label>
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={handleDateChange}
+                            min={new Date().toISOString().split("T")[0]} // Set the minimum date to today
+                            className="block w-full bg-gray-100 border border-gray-300 text-lg text-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg p-3"
+                        />
+                        {/* Time Picker */}
+                        <label className="block text-lg font-medium text-gray-700 mt-6 mb-3">
+                            Select Time
+                        </label>
+                        <select
+                            value={selectedTime}
+                            onChange={(e) => setSelectedTime(e.target.value)}
+                            className="block w-full bg-gray-100 border border-gray-300 text-lg text-gray-700 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-lg p-3"
+                        >
+                            {/* Generate options dynamically */}
+                            {[...Array((9 * 4) + 1)].map((_, i) => {
+                                // Calculate time slots starting at 11:00, incrementing by 15 minutes
+                                const totalMinutes = 660 + i * 15; // 660 minutes = 11:00 AM
+                                const hours = Math.floor(totalMinutes / 60);
+                                const minutes = totalMinutes % 60;
+                                const time = `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+                                return (
+                                    <option key={time} value={time}>
+                                        {time}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+
+                    {/* Save and Discard Buttons */}
+                    <div className="flex justify-between p-6 border-t border-gray-200">
+                        <button
+                            onClick={toggleModal}
+                            className="text-black bg-gray-100 border border-gray-300 rounded-lg px-6 py-3 hover:bg-gray-200 text-lg"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleSave}
+                            className="text-white bg-black hover:bg-gray-800 rounded-lg px-6 py-3 text-lg"
+                        >
+                            Save
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
     </div>
     );
 }
