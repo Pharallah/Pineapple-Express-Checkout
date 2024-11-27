@@ -13,6 +13,10 @@ function ContextProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(false)
     const [currentOrder, setCurrentOrder] = useState([])
 
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedTime, setSelectedTime] = useState("");
+
     // console.log(`CUSTOMERS:`, customers)
     // console.log('ORDERS:', orders)
     // console.log(`ORDERITEMS:`, orderItems)
@@ -64,7 +68,8 @@ function ContextProvider({ children }) {
 
         setCurrentOrder(pendingOrder ? [pendingOrder] : []);
     }
-    //  ******************************************************************
+    
+    //  *********************************************************
     
     // setCustomers
     useEffect(() => {
@@ -128,7 +133,7 @@ function ContextProvider({ children }) {
             .then(items => setItems(items))
     }, [])
 
-    // ****************** CALLBACK FUNCTIONS **********************
+    // ************* CALLBACK FUNCTIONS *******************
 
     function onSignup(newCustomer) {
         const updatedCustomers = [
