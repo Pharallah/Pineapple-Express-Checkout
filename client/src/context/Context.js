@@ -19,7 +19,7 @@ function ContextProvider({ children }) {
     // console.log(`CATEGORIES:`, categories)
     // console.log(`ITEMS:`, items)
     // console.log('CurrentUSER:', currentUser)
-    console.log('CurrentORDER:', currentOrder)
+    // console.log('CurrentORDER:', currentOrder)
 
     
     // Updates currentUser via changes to orders & orderItems

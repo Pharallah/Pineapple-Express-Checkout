@@ -20,9 +20,6 @@ function Cart({
 
   const [editingInstructions, setEditingInstructions] = useState(null);
   const [instructions, setInstructions] = useState(''); // Tracks the current input value
-
-  // Make Special Instructions editable in Cart for each item.
-  // Make Quantity editable in Cart for each item
   
   const orderItems = currentOrder[0]?.order_items || [];
   const orderPrice = currentOrder[0]?.total_price || 0;

@@ -30,12 +30,7 @@ function NavBar({ handleOpenCart }) {
             })
             .then(() => {
                 navigate('/login');   // Redirect to login page
-                console.log("Should have navigated to login by now")
-
-                console.log("LOGOUT - Resetting CurrentUser..")
                 setCurrentUser(false); // Clear user context
-                
-                console.log("LOGOUT - Resetting CurrentOrder..")
                 setCurrentOrder([]) // Clear order context
             })
             .catch((error) => {
