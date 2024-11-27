@@ -7,7 +7,7 @@ import { Context } from '../context/Context';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const { currentUser, setCurrentUser, recalculateCurrentOrder } = useContext(Context)
+  const { setCurrentUser, recalculateCurrentOrder } = useContext(Context)
   const navigate = useNavigate()
 
 

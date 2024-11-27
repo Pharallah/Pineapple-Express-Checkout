@@ -18,28 +18,14 @@ function ContextProvider({ children }) {
     // console.log(`ORDERITEMS:`, orderItems)
     // console.log(`CATEGORIES:`, categories)
     // console.log(`ITEMS:`, items)
-    console.log('CurrentUSER:', currentUser)
+    // console.log('CurrentUSER:', currentUser)
     console.log('CurrentORDER:', currentOrder)
 
-    // CurrentUser should only be triggered when: 
-    // user signs up, logs in, order (CRU) changes, full CRUD on orderItems
     
-    // Update currentUser via changes to orders & orderItems
+    // Updates currentUser via changes to orders & orderItems
     useEffect(() => {
         updateCurrentUser();
     }, [orders, orderItems])
-
-    // Guards updateCurrentUser()
-    // useEffect(() => {
-    //     let shouldFetchCurrentUser = false;
-    //     if () {
-    //         shouldFetchCurrentUser = true;
-    //     }
-
-    //     if (shouldFetchCurrentUser) {
-    //         updateCurrentUser();
-    //     }
-    // }, [customers, orders, orderItems]);
 
     function updateCurrentUser() {
         fetch('/current_user')
@@ -51,13 +37,13 @@ function ContextProvider({ children }) {
             .then((user) => {
                 setCurrentUser(user);
                 if (user) {
-                    recalculateCurrentOrder(user);
+                    recalculateCurrentOrder(user); // Works because recalculateCurrentOrder is getting its source from the server
                 }
             })
             .catch((err) => console.error("Error fetching current user:", err));
     }
     
-    // Guards recalculateCurrentOrder from executing before currentUser has been set
+    // Guards recalculateCurrentOrder from changes in currentUser being executed anywhere outside of updateCurrentUser (i.e. Signup & Login)
     useEffect(() => {
         if (currentUser) {
             recalculateCurrentOrder(currentUser);
@@ -194,6 +180,11 @@ function ContextProvider({ children }) {
         })
         setOrders(updatedOrders);
     }
+
+    function onUpdateQuantity(updatedOrderItem) {
+        const updatedOrderItems = orderItems.map((item) => item.id === updatedOrderItem.id ? updatedOrderItem : item)
+        setOrderItems(updatedOrderItems)
+    }
     return <Context.Provider value={
         {
             currentUser, setCurrentUser, updateCurrentUser,
@@ -207,7 +198,7 @@ function ContextProvider({ children }) {
             // onLogin,
             onNewOrder, onNewOrderItem,
             onUpdateOrderItem, onDeleteOrderItem,
-            onPlaceOrder
+            onUpdateQuantity, onPlaceOrder
         }
     }>{children}</Context.Provider>
 }

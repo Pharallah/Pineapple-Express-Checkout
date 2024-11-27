@@ -12,9 +12,14 @@ function Cart({
   const {
     currentUser, 
     currentOrder,
-    onDeleteOrderItem,
+    setCurrentOrder,
     onPlaceOrder,
+    onUpdateQuantity,
+    onDeleteOrderItem,
   } = useContext(Context)
+
+  const [editingInstructions, setEditingInstructions] = useState(null);
+  const [instructions, setInstructions] = useState(''); // Tracks the current input value
 
   // Make Special Instructions editable in Cart for each item.
   // Make Quantity editable in Cart for each item
@@ -27,10 +32,11 @@ function Cart({
     return <div>Loading...</div>;
   }
   
-  console.log("User:", currentUser)
-  console.log("Order:", currentOrder)
-  console.log("Order ID:", orderId)
-  console.log("OrderItems in Cart:", orderItems)
+  console.log(instructions)
+  // console.log("User:", currentUser)
+  // console.log("Order:", currentOrder)
+  // console.log("Order ID:", orderId)
+  // console.log("OrderItems in Cart:", orderItems)
   
   function handlePlaceOrder(id) {
     fetch(`/orders/${id}`, {
@@ -62,6 +68,56 @@ function Cart({
         throw new Error('Failed to delete');
       }
     })
+  }
+
+  function handleAddInstructions(orderItemId) {
+    // Submit the special instructions
+    fetch(`/orderitems/${orderItemId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        specialInstructions: instructions,
+      }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          throw new Error('Failed to update special instructions');
+        }
+      })
+      .then(() => {
+        setEditingInstructions(null); // Exit editing mode
+        setInstructions(''); // Clear input
+      })
+      .catch((error) => console.error(error));
+  }
+
+  function handleUpdateQuantity(orderItemId, newQuantity) {
+    fetch(`/orderitems/${orderItemId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        quantity: parseInt(newQuantity, 10), // Ensure it's an integer
+      }),
+    })
+      .then((res) => {
+        if (res.ok) {
+          console.log("Server response:",res.status)
+          return res.json();
+        } else {
+          throw new Error('Failed to update quantity');
+        }
+      })
+      .then((updatedOrderItem) => {
+
+        onUpdateQuantity(updatedOrderItem)
+      })
+      .catch((error) => console.error(error));
   }
 
   return (
@@ -104,41 +160,96 @@ function Cart({
                       ) : (
                         <ul role="list" className="-my-6 divide-y divide-gray-200">
                           {orderItems.map((orderItem) => (
-                            <li key={orderItem.id} className="flex py-6">
-                              <div className="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                <img
-                                  alt={orderItem.item.description}
-                                  src={orderItem.item.image}
-                                  className="size-full object-cover"
-                                />
+                          <li key={orderItem.id} className="flex flex-col py-6 w-full">
+                          {/* Image Section */}
+                          <div className="flex">
+                            <div className="w-24 h-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
+                              <img
+                                alt={orderItem.item.description}
+                                src={orderItem.item.image}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                        
+                            {/* Item Info Section */}
+                            <div className="ml-4 flex-1">
+                              <div className="flex justify-between text-base font-medium text-gray-900">
+                                <h3>{orderItem.item.name}</h3>
+                                <p className="ml-4">${orderItem.priceByQuantity}</p>
                               </div>
-
-                              <div className="ml-4 flex flex-1 flex-col">
+                              <p className="mt-1 text-sm text-gray-500">{orderItem.item.description}</p>
+                            </div>
+                          </div>
+                        
+                          {/* Action Section */}
+                          <div className="mt-4 flex flex-col">
+                            {/* Dropdown and Remove Button */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center">
+                                <label htmlFor={`quantity-${orderItem.id}`} className="text-gray-500 mr-2">
+                                  Qty:
+                                </label>
+                                <select
+                                  id={`quantity-${orderItem.id}`}
+                                  value={orderItem.quantity}
+                                  onChange={(e) => handleUpdateQuantity(orderItem.id, e.target.value)}
+                                  className="border border-gray-300 rounded-md text-gray-700 text-sm p-1"
+                                >
+                                  {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
+                                    <option key={num} value={num}>
+                                      {num}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                              <button
+                                type="button"
+                                className="text-smd text-red-500 hover:text-gray-700"
+                                onClick={() => handleDeleteOrder(orderItem.id)}
+                              >
+                                Remove
+                              </button>
+                            </div>
+                        
+                            {/* Special Instructions */}
+                            <div className="mt-4">
+                              {editingInstructions === orderItem.id ? (
                                 <div>
-                                  <div className="flex justify-between text-base font-medium text-gray-900">
-                                    <h3>
-                                      <a>{orderItem.item.name}</a>
-                                    </h3>
-                                    <p className="ml-4">${orderItem.priceByQuantity}</p>
-                                  </div>
-                                  <p className="mt-1 text-sm text-gray-500">
-                                    {orderItem.item.description}
-                                  </p>
-                                </div>
-                                <div className="flex flex-1 items-end justify-between text-sm">
-                                  <p className="text-gray-500">Qty {orderItem.quantity}</p>
-                                  <div className="flex">
+                                  <textarea
+                                    className="w-full border rounded-md p-2 text-sm"
+                                    placeholder="Enter special instructions..."
+                                    value={instructions}
+                                    onChange={(e) => setInstructions(e.target.value)}
+                                  />
+                                  <div className="flex justify-between items-center mt-2">
                                     <button
-                                      type="button"
-                                      className="font-medium text-black hover:text-gray-700"
-                                      onClick={() => handleDeleteOrder(orderItem.id)}
+                                      onClick={() => {
+                                        setEditingInstructions(null);
+                                        setInstructions('');
+                                      }}
+                                      className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400"
                                     >
-                                      Remove
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => handleAddInstructions(orderItem.id)}
+                                      className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-900"
+                                    >
+                                      Submit
                                     </button>
                                   </div>
                                 </div>
-                              </div>
-                            </li>
+                              ) : (
+                                <button
+                                  onClick={() => setEditingInstructions(orderItem.id)}
+                                  className="text-sm text-blue-500 hover:text-blue-700"
+                                >
+                                  Add Special Instructions
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </li>
                           ))}
                         </ul>
                       )}
