@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 const Context = createContext()
 
 function ContextProvider({ children }) {
+    const currentDate = new Date().toISOString().split("T")[0]; //'YYYY-MM-DD' format
+
     const [customers, setCustomers] = useState([])
     const [orders, setOrders] = useState([])
     const [orderItems, setOrderItems] = useState([])
@@ -15,17 +17,9 @@ function ContextProvider({ children }) {
 
     const [orderType, setOrderType] = useState("Take-Out");
     const [isModalOpen, setModalOpen] = useState(false);
-    const [selectedDate, setSelectedDate] = useState("");
+
+    const [selectedDate, setSelectedDate] = useState(currentDate);
     const [selectedTime, setSelectedTime] = useState("12:00");
-
-    // console.log(`CUSTOMERS:`, customers)
-    // console.log('ORDERS:', orders)
-    // console.log(`ORDERITEMS:`, orderItems)
-    // console.log(`CATEGORIES:`, categories)
-    // console.log(`ITEMS:`, items)
-    // console.log('CurrentUSER:', currentUser)
-    // console.log('CurrentORDER:', currentOrder)
-
     
     // Updates currentUser via changes to orders & orderItems
     useEffect(() => {

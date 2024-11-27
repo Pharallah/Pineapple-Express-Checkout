@@ -14,8 +14,11 @@ function Cart({
     currentOrder,
     setCurrentOrder,
     orderType,
+    setOrderType,
     selectedDate,
+    setSelectedDate,
     selectedTime,
+    setSelectedTime,
     onPlaceOrder,
     onUpdateQuantity,
     onDeleteOrderItem,
@@ -27,6 +30,7 @@ function Cart({
   const orderItems = currentOrder[0]?.order_items || [];
   const orderPrice = currentOrder[0]?.total_price || 0;
   const orderId = currentOrder[0]?.id || null;
+  const currentDate = new Date().toISOString().split("T")[0]; // Get current date in 'YYYY-MM-DD' format
   const pickupTime = `${selectedDate}T${selectedTime}:00`;  
   
   if (!currentOrder && !orderPrice && !orderId) {
@@ -40,25 +44,50 @@ function Cart({
   // console.log("OrderItems in Cart:", orderItems)
   
   function handlePlaceOrder(id) {
-    console.log("PickupTime", pickupTime)
-    console.log("Order Type", orderType)
-
+    // Validate inputs
+    if (!pickupTime || !orderType) {
+      console.error("Invalid pickupTime or orderType. Cannot place order.");
+      alert("Please ensure all fields are filled out correctly.");
+      return;
+    }
+  
+    // console.log("Placing order with the following details:");
+    // console.log("Order ID:", id);
+    // console.log("PickupTime:", pickupTime);
+    // console.log("Order Type:", orderType);
+  
     fetch(`/orders/${id}`, {
       method: "PATCH",
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         orderStatus: "Order Placed",
         pickupTime: pickupTime,
-        orderType: orderType
+        orderType: orderType,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((errorData) => {
+            console.error("Failed to place order:", errorData);
+            alert("Error placing the order. Please try again.");
+            throw new Error("Failed to place order");
+          });
+        }
+        return response.json();
       })
-    })
-    .then(res => res.json())
-    .then((placedOrder) => {
-      console.log("POST PLACE ORDER:", placedOrder)
-      onPlaceOrder(placedOrder);
-    })
+      .then((placedOrder) => {
+        console.log("Order successfully placed:", placedOrder);
+        onPlaceOrder(placedOrder);
+        setOrderType("Take-Out");
+        setSelectedDate(currentDate)
+        setSelectedTime("12:00")
+      })
+      .catch((error) => {
+        console.error("Error placing order:", error);
+        alert("An unexpected error occurred. Please try again later.");
+      });
   }
 
   function handleDeleteOrder(id) {
