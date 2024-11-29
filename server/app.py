@@ -219,9 +219,19 @@ class Orders(Resource):
 class OrderHistory(Resource):
     def get(self, id):
         # All Orders of a particular customer if their order_status == "Order Placed"
-
         orders = db.session.query(Order).join(Customer).filter(Customer.id == id).all()
-        orders_placed = [order.to_dict(rules=('-customer',)) for order in orders if order.order_status == 'Order Placed']
+        
+        # Include total_price and number_of_items in the response
+        orders_placed = [
+            {
+                **order.to_dict(rules=('-customer', '-customer_id')),
+                "total_price": float(order.total_price),
+                "number_of_items": order.number_of_items
+            }
+            for order in orders if order.order_status == 'Order Placed'
+        ]
+
+        orders_placed = sorted(orders_placed, key=lambda o: o["pickup_time"], reverse=True)
 
         if orders_placed:
             return make_response(orders_placed, 200)
@@ -260,6 +270,7 @@ class OrderById(Resource):
         if 'pickupTime' in json:
             try:
                 # Convert ISO string to datetime and strip timezone
+                
                 pickup_time = datetime.fromisoformat(json['pickupTime'].replace("Z", "+00:00")).replace(tzinfo=None)
                 order.pickup_time = pickup_time
             except ValueError as e:

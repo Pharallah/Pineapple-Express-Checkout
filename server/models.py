@@ -140,10 +140,6 @@ class Order(db.Model, SerializerMixin):
     def total_price(self):
         return sum(order_item.item.price * order_item.quantity for order_item in self.order_items)
     
-    @property
-    def total_price_serialized(self):
-        return self.total_price
-    
     @validates('customer_id')
     def validates_customer_id(self, key, id):
         customer = Customer.query.filter(Customer.id == id).first()
