@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Context } from '../context/Context';
 
 function ItemContainer() {
@@ -13,9 +13,10 @@ function ItemContainer() {
     } = useContext(Context);
 
     useEffect(() => {
-        if (orderType === 'Catering') {
-            toggleModal();
-        }
+        toggleModal();
+        // if (orderType === 'Catering') {
+            
+        // }
     }, [orderType])
 
     const handleToggle = () => {
@@ -278,13 +279,19 @@ function ItemContainer() {
                             </svg>
                         </button>
                     </div>
-                    {orderType === "Catering" && (
+                    {orderType === "Catering" ? (
                          <div className="p-6">
                          <p className="text-gray-700">
-                            Please Note: Pickup Time for catering orders must be between 24 hours and 7 days in advance.
+                            Pickup time must be scheduled at least 24 hours in advance and no later than 7 days from today.
                          </p>
                      </div>
-                    )}
+                    ) : (
+                        <div className="p-6">
+                        <p className="text-gray-700">
+                            Pickup time must be scheduled at least 20 minutes from now and no later than 8:00 PM today.
+                        </p>
+                    </div>
+                   )}
                     <div className="p-6">
                         {/* Date Picker */}
                         <label className="block text-lg font-medium text-gray-700 mb-3">
@@ -346,4 +353,4 @@ function ItemContainer() {
     );
 }
 
-export default ItemContainer;
+export default React.memo(ItemContainer);

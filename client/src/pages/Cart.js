@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useContext } from 'react'
@@ -182,7 +182,7 @@ function Cart({
                           <p className="text-gray-500 text-sm">Your cart is looking kinda empty...</p>
                         </div>
                       ) : (
-                        <ul role="list" className="-my-6 divide-y divide-gray-200">
+                        <ul className="-my-6 divide-y divide-gray-200">
                           {orderItems.map((orderItem) => (
                           <li key={orderItem.id} className="flex flex-col py-6 w-full">
                           {/* Image Section */}

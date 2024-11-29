@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate, Er } from "react-router-dom";
+import React from "react";
+// eslint-disable-next-line
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import ProtectedDashboardRoute from "../components/ProtectedDashboardRoute";
 import Signup from "./Signup";
 import Login from "./Login";

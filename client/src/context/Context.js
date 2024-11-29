@@ -26,6 +26,13 @@ function ContextProvider({ children }) {
         updateCurrentUser();
     }, [orders, orderItems])
 
+    // Guards recalculateCurrentOrder from changes in currentUser being executed anywhere outside of updateCurrentUser (i.e. Signup & Login)
+    useEffect(() => {
+        if (currentUser) {
+            recalculateCurrentOrder(currentUser);
+        }
+    }, [currentUser]);
+
     function updateCurrentUser() {
         fetch('/current_user')
             .then((res) => {
@@ -42,13 +49,6 @@ function ContextProvider({ children }) {
             })
             .catch((err) => console.error("Error fetching current user:", err));
     }
-    
-    // Guards recalculateCurrentOrder from changes in currentUser being executed anywhere outside of updateCurrentUser (i.e. Signup & Login)
-    useEffect(() => {
-        if (currentUser) {
-            recalculateCurrentOrder(currentUser);
-        }
-    }, [currentUser]);
 
     function recalculateCurrentOrder(user) {
         if (
@@ -74,7 +74,7 @@ function ContextProvider({ children }) {
             return res.json();
         })
         .then((orders) => setPastOrders(orders))
-        console.log("PAST ORDERS",pastOrders)
+        
     }
 
     //  *********************************************************
@@ -204,6 +204,7 @@ function ContextProvider({ children }) {
             currentOrder, recalculateCurrentOrder, 
             customers, setCustomers, 
             orders, setOrders, updatePastHistory,
+            pastOrders,
             orderItems, setOrderItems,
             categories, setCategories,
             items, setItems,

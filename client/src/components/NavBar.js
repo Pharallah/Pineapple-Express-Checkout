@@ -153,4 +153,4 @@ function NavBar({ handleOpenCart }) {
     );
 }
 
-export default NavBar;
+export default React.memo(NavBar);

@@ -1,5 +1,3 @@
-import React from "react";
-import Signup from "../pages/Signup";
 import { useNavigate } from "react-router";
 
 const ProtectedDashboardRoute = ({ children, isAuthenticated }) => {
