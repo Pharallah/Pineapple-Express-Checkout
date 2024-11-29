@@ -7,7 +7,7 @@ import { Context } from '../context/Context';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const { setCurrentUser, recalculateCurrentOrder } = useContext(Context)
+  const { setCurrentUser, recalculateCurrentOrder, updatePastHistory } = useContext(Context)
   const navigate = useNavigate()
 
 
@@ -49,8 +49,11 @@ function Login() {
       })
       .then(authenticatedUser => {
         setCurrentUser(authenticatedUser);
-        recalculateCurrentOrder(authenticatedUser);
-        navigate('/');
+        if (authenticatedUser) {
+          recalculateCurrentOrder(authenticatedUser); // Works because recalculateCurrentOrder is getting its source from the server
+          updatePastHistory(authenticatedUser);
+          navigate('/');
+        };
       })
     }
   })

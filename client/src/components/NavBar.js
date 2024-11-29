@@ -40,7 +40,7 @@ function NavBar({ handleOpenCart }) {
 
     const navigation = [
         { name: 'Home', href: '/dashboard' },
-        { name: 'Order History', href: 'orders' },
+        { name: 'Order History', href: '/orders' },
         { 
             name: 'Cart', 
             onClick: handleOpenCart,

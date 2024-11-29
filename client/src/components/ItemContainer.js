@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Context } from '../context/Context';
 
 function ItemContainer() {
@@ -12,10 +12,15 @@ function ItemContainer() {
         selectedTime, setSelectedTime
     } = useContext(Context);
 
-    // console.log("Is Modal Open?", isModalOpen)
-    console.log("Date:", selectedDate)
-    console.log("Time", selectedTime)
+    useEffect(() => {
+        if (orderType === 'Catering') {
+            toggleModal();
+        }
+    }, [orderType])
 
+    const handleToggle = () => {
+        setOrderType((prev) => (prev === "Take-Out" ? "Catering" : "Take-Out"));
+    };
 
     const toggleModal = () => {
         setModalOpen(!isModalOpen);
@@ -41,10 +46,6 @@ function ItemContainer() {
     const handleSave = () => {
         console.log(`Selected Date: ${selectedDate}, Selected Time: ${selectedTime}`);
         setModalOpen(false);
-    };
-
-    const handleToggle = () => {
-        setOrderType((prev) => (prev === "Take-Out" ? "Catering" : "Take-Out"));
     };
 
     function createNewOrder(itemId) {
@@ -277,6 +278,13 @@ function ItemContainer() {
                             </svg>
                         </button>
                     </div>
+                    {orderType === "Catering" && (
+                         <div className="p-6">
+                         <p className="text-gray-700">
+                            Please Note: Pickup Time for catering orders must be between 24 hours and 7 days in advance.
+                         </p>
+                     </div>
+                    )}
                     <div className="p-6">
                         {/* Date Picker */}
                         <label className="block text-lg font-medium text-gray-700 mb-3">

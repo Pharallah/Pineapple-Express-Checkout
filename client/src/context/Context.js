@@ -6,18 +6,18 @@ const Context = createContext()
 
 function ContextProvider({ children }) {
     const currentDate = new Date().toISOString().split("T")[0]; //'YYYY-MM-DD' format
-
-    const [customers, setCustomers] = useState([])
-    const [orders, setOrders] = useState([])
-    const [orderItems, setOrderItems] = useState([])
-    const [categories, setCategories] = useState([])
-    const [items, setItems] = useState([])
-    const [currentUser, setCurrentUser] = useState(false)
-    const [currentOrder, setCurrentOrder] = useState([])
+    const [customers, setCustomers] = useState([]);
+    const [orders, setOrders] = useState([]);
+    const [pastOrders, setPastOrders] = useState([]);
+    const [orderItems, setOrderItems] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [items, setItems] = useState([]);
+    const [currentUser, setCurrentUser] = useState(false);
+    const [currentOrder, setCurrentOrder] = useState([]);
 
     const [orderType, setOrderType] = useState("Take-Out");
     const [isModalOpen, setModalOpen] = useState(false);
-
+    
     const [selectedDate, setSelectedDate] = useState(currentDate);
     const [selectedTime, setSelectedTime] = useState("12:00");
     
@@ -37,6 +37,7 @@ function ContextProvider({ children }) {
                 setCurrentUser(user);
                 if (user) {
                     recalculateCurrentOrder(user); // Works because recalculateCurrentOrder is getting its source from the server
+                    updatePastHistory(user);
                 }
             })
             .catch((err) => console.error("Error fetching current user:", err));
@@ -63,7 +64,19 @@ function ContextProvider({ children }) {
 
         setCurrentOrder(pendingOrder ? [pendingOrder] : []);
     }
-    
+
+    function updatePastHistory(user) {
+        fetch(`/order_history/${user.id}`)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(`HTTP error! status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then((orders) => setPastOrders(orders))
+        console.log("PAST ORDERS",pastOrders)
+    }
+
     //  *********************************************************
     
     // setCustomers
@@ -189,8 +202,8 @@ function ContextProvider({ children }) {
         {
             currentUser, setCurrentUser, updateCurrentUser,
             currentOrder, recalculateCurrentOrder, 
-            customers, setCustomers,
-            orders, setOrders,
+            customers, setCustomers, 
+            orders, setOrders, updatePastHistory,
             orderItems, setOrderItems,
             categories, setCategories,
             items, setItems,

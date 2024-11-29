@@ -10,9 +10,7 @@ function Cart({
   setOpen 
 }) {
   const {
-    currentUser, 
     currentOrder,
-    setCurrentOrder,
     orderType,
     setOrderType,
     selectedDate,
@@ -37,11 +35,6 @@ function Cart({
     return <div>Loading...</div>;
   }
   
-  // console.log(instructions)
-  // console.log("User:", currentUser)
-  // console.log("Order:", currentOrder)
-  // console.log("Order ID:", orderId)
-  // console.log("OrderItems in Cart:", orderItems)
   
   function handlePlaceOrder(id) {
     // Validate inputs
@@ -50,11 +43,6 @@ function Cart({
       alert("Please ensure all fields are filled out correctly.");
       return;
     }
-  
-    // console.log("Placing order with the following details:");
-    // console.log("Order ID:", id);
-    // console.log("PickupTime:", pickupTime);
-    // console.log("Order Type:", orderType);
   
     fetch(`/orders/${id}`, {
       method: "PATCH",
@@ -173,7 +161,7 @@ function Cart({
               <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
                 <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                   <div className="flex items-start justify-between">
-                    <DialogTitle className="text-lg font-medium text-gray-900">Shopping cart</DialogTitle>
+                    <DialogTitle className="text-lg font-medium text-gray-900">Order Type: {orderType}</DialogTitle>
                     <div className="ml-3 flex h-7 items-center">
                       <button
                         type="button"

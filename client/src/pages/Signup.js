@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 
 function Signup() {
   const navigate = useNavigate()
-  const { setCurrentUser, onSignup, recalculateCurrentOrder } = useContext(Context)
+  const { setCurrentUser, onSignup, recalculateCurrentOrder, updatePastHistory } = useContext(Context)
   
   const formSchema = yup.object().shape({
     username: yup
@@ -96,8 +96,11 @@ function Signup() {
       })
       .then(authenticatedUser => {
         setCurrentUser(authenticatedUser);
-        recalculateCurrentOrder(authenticatedUser);
-        navigate('/');
+        if (authenticatedUser) {
+          recalculateCurrentOrder(authenticatedUser); // Works because recalculateCurrentOrder is getting its source from the server
+          updatePastHistory(authenticatedUser);
+          navigate('/');
+        };   
       })
   }
   
