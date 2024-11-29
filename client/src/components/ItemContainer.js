@@ -12,15 +12,13 @@ function ItemContainer() {
         selectedTime, setSelectedTime
     } = useContext(Context);
 
-    useEffect(() => {
-        toggleModal();
-        // if (orderType === 'Catering') {
-            
-        // }
-    }, [orderType])
+    // useEffect(() => {
+        
+    // }, [orderType])
 
     const handleToggle = () => {
         setOrderType((prev) => (prev === "Take-Out" ? "Catering" : "Take-Out"));
+        toggleModal();
     };
 
     const toggleModal = () => {
@@ -353,4 +351,4 @@ function ItemContainer() {
     );
 }
 
-export default React.memo(ItemContainer);
+export default ItemContainer;

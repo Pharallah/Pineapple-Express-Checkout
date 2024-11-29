@@ -68,7 +68,6 @@ function Cart({
       .then((placedOrder) => {
         console.log("Order successfully placed:", placedOrder);
         onPlaceOrder(placedOrder);
-        setOrderType("Take-Out");
         setSelectedDate(currentDate)
         setSelectedTime("12:00")
       })

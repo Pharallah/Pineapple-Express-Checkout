@@ -74,7 +74,6 @@ function ContextProvider({ children }) {
             return res.json();
         })
         .then((orders) => setPastOrders(orders))
-        
     }
 
     //  *********************************************************
