@@ -1,4 +1,5 @@
 import App from "./pages/App";
+import Account from "./pages/Account";
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -50,6 +51,14 @@ const routes = [
         element: (
             <ContextProvider>
                 <OrderHistory />
+            </ContextProvider>
+        ),
+    },
+    {
+        path: "/account",
+        element: (
+            <ContextProvider>
+                <Account />
             </ContextProvider>
         ),
     },

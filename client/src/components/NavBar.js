@@ -4,7 +4,7 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { Context } from '../context/Context';
 import logo from '../assets/logo.jpg'
 
-function NavBar({ handleOpenCart }) {
+function NavBar({ handleOpenCart, handleOpenAccount }) {
     const { setCurrentUser, setCurrentOrder } = useContext(Context);
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
@@ -13,42 +13,12 @@ function NavBar({ handleOpenCart }) {
         return classes.filter(Boolean).join(' ');
     }
 
-    const handleLogout = (e) => {
-        e.preventDefault();
-        fetch('/logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-            .then((res) => {
-                if (res.ok) {
-                    return res.json()
-                } else {
-                    throw new Error("Logout Failed")
-                }
-            })
-            .then(() => {
-                navigate('/login');   // Redirect to login page
-                setCurrentUser(false); // Clear user context
-                setCurrentOrder([]) // Clear order context
-            })
-            .catch((error) => {
-                console.error('Error during logout:', error);
-            });
-    };
-
     const navigation = [
         { name: 'Home', href: '/dashboard' },
-        { name: 'Order History', href: '/orders' },
-        { 
-            name: 'Cart', 
-            onClick: handleOpenCart,
-        },
-        {
-            name: `Logout`,
-            onClick: handleLogout,
-        },
+        { name: 'Account', onClick: handleOpenAccount },
+        { name: 'Orders', href: '/orders' },
+        { name: 'Cart', onClick: handleOpenCart },
+        // { name: `Logout`, onClick: handleLogout },
     ];
 
     return (

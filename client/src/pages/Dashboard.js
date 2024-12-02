@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import ItemContainer from '../components/ItemContainer';
+import Account from './Account';
 import Cart from './Cart';
 
 function Dashboard() {
-  const [open, setOpen] = useState(false)
+  const [openCart, setOpenCart] = useState(false)
+  const [openAccount, setOpenAccount] = useState(false)
 
   function handleOpenCart() {
-    setOpen(true)
+    setOpenCart(true);
+  }
+
+  function handleOpenAccount() {
+    setOpenAccount(true);
   }
 
   return (
   <>
-    <NavBar handleOpenCart={handleOpenCart} />
+    <NavBar handleOpenCart={handleOpenCart} handleOpenAccount={handleOpenAccount}/>
     <ItemContainer/>
 
-    {open && <Cart open={open} setOpen={setOpen}/>}
+    {openCart && <Cart openCart={openCart} setOpenCart={setOpenCart}/>}
+
+    {openAccount && <Account openAccount={openAccount} setOpenAccount={setOpenAccount}/>}
   </>
     
   )

@@ -70,8 +70,10 @@ function ContextProvider({ children }) {
         .then(res => {
             if (!res.ok) {
                 throw new Error(`HTTP error! status: ${res.status}`);
+            } else {
+                return res.json();
             }
-            return res.json();
+            
         })
         .then((orders) => setPastOrders(orders))
     }

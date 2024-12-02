@@ -6,8 +6,8 @@ import { Context } from '../context/Context'
 
 
 function Cart({ 
-  open, 
-  setOpen 
+  openCart, 
+  setOpenCart 
 }) {
   const {
     currentOrder,
@@ -144,7 +144,7 @@ function Cart({
   }
 
   return (
-    <Dialog open={open} onClose={setOpen} className="relative z-10">
+    <Dialog open={openCart} onClose={setOpenCart} className="relative z-10">
       <DialogBackdrop
         transition
         className="fixed inset-0 bg-gray-500/75 transition-opacity duration-700 ease-in-out data-[closed]:opacity-0"
@@ -164,7 +164,7 @@ function Cart({
                     <div className="ml-3 flex h-7 items-center">
                       <button
                         type="button"
-                        onClick={() => setOpen(false)}
+                        onClick={() => setOpenCart(false)}
                         className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
                       >
                         <span className="absolute -inset-0.5" />
@@ -291,7 +291,7 @@ function Cart({
                     type="button"
                     onClick={() => {
                       handlePlaceOrder(orderId);
-                      setOpen(false);
+                      setOpenCart(false);
                     }}
                     className="flex w-full items-center justify-center rounded-md border border-black bg-black px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-gray-900"
                   >
@@ -303,7 +303,7 @@ function Cart({
                       or{' '}
                       <button
                         type="button"
-                        onClick={() => setOpen(false)}
+                        onClick={() => setOpenCart(false)}
                         className="font-medium text-black hover:text-gray-700"
                       >
                         Continue Shopping
