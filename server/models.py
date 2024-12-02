@@ -90,20 +90,52 @@ class Customer(db.Model, SerializerMixin):
     
     @validates('phone_number')
     def validate_phone(self, key, phone_number):
-        # Regex pattern allows (XXX) XXX-XXXX, XXX-XXX-XXXX, +X-XXX-XXX-XXXX, etc.
+        import re
+
+        # Regex pattern to match valid phone numbers
         pattern = re.compile(r'^\+?(\d{1,3})?[-.\s]?(\(?\d{3}\)?)?[-.\s]?\d{3}[-.\s]?\d{4}$')
         if not pattern.match(phone_number):
             raise ValueError('Phone number must be in a valid format, e.g., +1-234-567-8900 or 234-567-8900.')
-        return phone_number
+
+        # Extract only the digits
+        digits = re.sub(r'\D', '', phone_number)
+
+        # Ensure there are exactly 10 digits
+        if len(digits) != 10:
+            raise ValueError('Phone number must contain exactly 10 digits.')
+
+        # Format the digits into XXX-XXX-XXXX
+        formatted_phone_number = f'{digits[:3]}-{digits[3:6]}-{digits[6:]}'
+
+        return formatted_phone_number
     
     @validates('first_name', 'last_name')
     def validate_name(self, key, name):
-        if not name:
-            raise ValueError(f'{key.replace("_", " ").title()} must be provided.')
-        if not name.isalpha():
-            raise ValueError(f'{key.replace("_", " ").title()} must contain only alphabetic characters.')
-        if len(name) < 2:
-            raise ValueError(f'{key.replace("_", " ").title()} must be at least 2 characters long.')
+        # breakpoint()
+        # Allow None or empty string for partial updates
+        if name is None or name.strip() == "":
+            return name
+        
+        # Ensure only valid characters are present
+        valid_characters = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ -")
+        if any(char not in valid_characters for char in name):
+            raise ValueError(f'{key.replace("_", " ").title()} must contain only alphabetic characters, spaces, or hyphens.')
+
+        # Check for invalid usage of spaces or hyphens
+        if name.startswith(("-", " ")) or name.endswith(("-", " ")):
+            raise ValueError(f'{key.replace("_", " ").title()} must not start or end with hyphens or spaces.')
+        if "  " in name:
+            raise ValueError(f'{key.replace("_", " ").title()} must not contain consecutive spaces.')
+        if "--" in name:
+            raise ValueError(f'{key.replace("_", " ").title()} must not contain consecutive hyphens.')
+
+        # Ensure minimum length requirement (excluding spaces and hyphens)
+        stripped_name = name.replace(" ", "").replace("-", "")
+        if len(stripped_name) < 2:
+            raise ValueError(f'{key.replace("_", " ").title()} must be at least 2 characters long excluding spaces and hyphens.')
+
+        # Log validated name before returning (for debugging)
+        print(f"Validated {key}: {name}")
         return name
     
     @validates('created_at')
@@ -172,37 +204,37 @@ class Order(db.Model, SerializerMixin):
     
     from datetime import datetime, timedelta
 
-@validates('pickup_time')
-def validate_pickup_time(self, key, pickup_time):
-    if pickup_time is None:
-        now = datetime.now()
+    @validates('pickup_time')
+    def validate_pickup_time(self, key, pickup_time):
+        if pickup_time is None:
+            now = datetime.now()
+            if self.order_type == 'Catering':
+                # Default for Catering orders
+                return now + timedelta(hours=24)
+            elif self.order_type == 'Take-Out':
+                # Default for Take-Out orders
+                return now + timedelta(minutes=20)
+
+        # Ensure pickup_time is a valid datetime object
+        if not isinstance(pickup_time, datetime):
+            raise ValueError('Pickup time must be a valid datetime object.')
+
+        # Strip timezone information if pickup_time is offset-aware
+        pickup_time = pickup_time.replace(tzinfo=None)
+
+        now = datetime.now()  # Current time, naive
+
         if self.order_type == 'Catering':
-            # Default for Catering orders
-            return now + timedelta(hours=24)
+            if pickup_time < now + timedelta(hours=24) or pickup_time > now + timedelta(days=7):
+                raise ValueError('For Catering orders, pickup time must be between 24 hours and 7 days in advance.')
         elif self.order_type == 'Take-Out':
-            # Default for Take-Out orders
-            return now + timedelta(minutes=20)
+            if pickup_time < now + timedelta(minutes=20):
+                raise ValueError('For Take-Out orders, pickup time must be at least 20 minutes in advance.')
+            end_of_day = now.replace(hour=20, minute=0, second=0, microsecond=0)
+            if pickup_time > end_of_day:
+                raise ValueError('For Take-Out orders, pickup time cannot be after 8:00 PM.')
 
-    # Ensure pickup_time is a valid datetime object
-    if not isinstance(pickup_time, datetime):
-        raise ValueError('Pickup time must be a valid datetime object.')
-
-    # Strip timezone information if pickup_time is offset-aware
-    pickup_time = pickup_time.replace(tzinfo=None)
-
-    now = datetime.now()  # Current time, naive
-
-    if self.order_type == 'Catering':
-        if pickup_time < now + timedelta(hours=24) or pickup_time > now + timedelta(days=7):
-            raise ValueError('For Catering orders, pickup time must be between 24 hours and 7 days in advance.')
-    elif self.order_type == 'Take-Out':
-        if pickup_time < now + timedelta(minutes=20):
-            raise ValueError('For Take-Out orders, pickup time must be at least 20 minutes in advance.')
-        end_of_day = now.replace(hour=20, minute=0, second=0, microsecond=0)
-        if pickup_time > end_of_day:
-            raise ValueError('For Take-Out orders, pickup time cannot be after 8:00 PM.')
-
-    return pickup_time
+        return pickup_time
     
     @validates('order_status')
     def validate_order_status(self, key, order_status):

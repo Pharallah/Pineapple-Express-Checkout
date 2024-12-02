@@ -62,24 +62,28 @@ def datetime_formatter(date):
         return date.replace(second=0, microsecond=0)
     
 def custom_titled(text):
-    # Define punctuation characters
     punctuation = ".,!?;"
     titled_words = []
     word = ''
 
     for char in text:
-        if char.isalnum() or (char == "'" and word):
-            # Build the current word
+        if char.isalnum() or char == "'":
+            # Build the current word, allowing apostrophes within words
             word += char
+        elif char == "-":
+            # Handle hyphen: capitalize the current word and append the hyphen
+            if word:
+                titled_word = word[0].upper() + word[1:].lower()
+                titled_words.append(titled_word)
+                word = ''
+            titled_words.append('-')  # Append the hyphen as a separator
         else:
             # Process the word if we hit punctuation or space
             if word:
-                # Capitalize first letter and lower the rest (handles possessive 's naturally)
                 titled_word = word[0].upper() + word[1:].lower()
                 titled_words.append(titled_word)
                 word = ''
 
-            # Add punctuation or space as a separate element
             if char.isspace():
                 titled_words.append(char)
 

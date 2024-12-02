@@ -125,41 +125,43 @@ class CustomerById(Resource):
 
         json_data = request.get_json()
 
-        # Validate input fields
+        # Validate and update fields if they are present in the request
         errors = []
-        if 'username' in json_data:
+        if 'username' in json_data and json_data['username']:
             try:
                 customer.username = json_data['username']
             except ValueError as e:
                 errors.append({'error': str(e)})
-        if 'email' in json_data:
+        if 'email' in json_data and json_data['email']:
             try:
                 customer.email = json_data['email']
             except ValueError as e:
                 errors.append({'error': str(e)})
-        if 'password' in json_data:
+        if 'password' in json_data and json_data['password']:
             try:
                 customer.password_hash = json_data['password']
             except ValueError as e:
                 errors.append({'error': str(e)})
-        if 'firstName' in json_data:
+        if 'firstName' in json_data and json_data['firstName']:
             try:
                 customer.first_name = custom_titled(json_data['firstName'])
             except ValueError as e:
                 errors.append({'error': str(e)})
-        if 'lastName' in json_data:
+        if 'lastName' in json_data and json_data['lastName']:
             try:
                 customer.last_name = custom_titled(json_data['lastName'])
             except ValueError as e:
                 errors.append({'error': str(e)})
-        if 'phoneNumber' in json_data:
+        if 'phoneNumber' in json_data and json_data['phoneNumber']:
             try:
                 customer.phone_number = json_data['phoneNumber']
             except ValueError as e:
                 errors.append({'error': str(e)})
+
         if errors:
             return {'errors': errors}, 400
 
+        # Save changes to the database
         try:
             db.session.commit()
         except IntegrityError:
@@ -231,12 +233,10 @@ class OrderHistory(Resource):
             for order in orders if order.order_status == 'Order Placed'
         ]
 
-        orders_placed = sorted(orders_placed, key=lambda o: o["pickup_time"], reverse=True)
-
-        if orders_placed:
-            return make_response(orders_placed, 200)
-        else:
-            return {'error': 'Unexpected Server Error'}, 500
+        # Sort by pickup_time + descending
+        sorted_orders_placed = sorted(orders_placed, key=lambda o: o["pickup_time"], reverse=True)
+       
+        return make_response(sorted_orders_placed, 200)
     
     def delete(self, id):
         order = Order.query.filter(Order.id == id).first()
@@ -298,7 +298,6 @@ class OrderById(Resource):
         db.session.delete(order)
         db.session.commit()
         return {}, 204
-
 
 # class OrderByCustomerId(Resource):
     # def get(self, id):
@@ -372,7 +371,6 @@ class OrderItems(Resource):
 
     def post(self):
         json = request.get_json()
-        # breakpoint()
         try:
             new_order_item = OrderItem(
                 item_id=json['itemId'],
