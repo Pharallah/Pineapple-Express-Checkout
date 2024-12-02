@@ -1,12 +1,10 @@
-import React, { useState, useContext } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import { Context } from '../context/Context';
+import React, { useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { ShoppingCartIcon, Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import logo from '../assets/logo.jpg'
 
 function NavBar({ handleOpenCart, handleOpenAccount }) {
-    const { setCurrentUser, setCurrentOrder } = useContext(Context);
-    const navigate = useNavigate();
+    const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Mobile menu state
 
     function classNames(...classes) {
@@ -15,10 +13,11 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
 
     const navigation = [
         { name: 'Home', href: '/dashboard' },
-        { name: 'Account', onClick: handleOpenAccount },
+        // Conditionally include "Account"
+        ...(location.pathname !== '/orders'
+            ? [{ name: 'Account', onClick: handleOpenAccount }]
+            : []),
         { name: 'Orders', href: '/orders' },
-        { name: 'Cart', onClick: handleOpenCart },
-        // { name: `Logout`, onClick: handleLogout },
     ];
 
     return (
@@ -27,11 +26,13 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
                 <div className="relative flex h-32 items-center justify-between">
                     {/* Brand Logo */}
                     <div className="flex items-center">
-                        <img
-                            alt="Your Company"
-                            src={logo}
-                            className="h-28 w-auto"
-                        />
+                        <NavLink to="/dashboard">
+                            <img
+                                alt="Your Company"
+                                src={logo}
+                                className="h-28 w-auto cursor-pointer"
+                            />
+                        </NavLink>
                         <h1 className="text-4xl font-bold text-white ml-6 font-serif">
                             Pineapple Express Checkout
                         </h1>
@@ -65,6 +66,17 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
                                         {item.name}
                                     </NavLink>
                                 )
+                            )}
+
+                            {/* Conditionally render the Cart button */}
+                            {location.pathname === '/dashboard' && (
+                                <button
+                                    onClick={handleOpenCart}
+                                    className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2"
+                                >
+                                    <ShoppingCartIcon className="h-6 w-6 text-gray-300 hover:text-white" />
+                                    <span className="sr-only">Cart</span>
+                                </button>
                             )}
                         </div>
                     </div>
@@ -116,6 +128,17 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
                                 </NavLink>
                             )
                         )}
+
+                        {/* Conditionally render the Cart button in mobile view */}
+                        {location.pathname === '/dashboard' && (
+                            <button
+                                onClick={handleOpenCart}
+                                className="text-gray-300 hover:bg-gray-700 hover:text-white block w-full text-left rounded-md px-3 py-2"
+                            >
+                                <ShoppingCartIcon className="h-6 w-6 text-gray-300 hover:text-white inline" />
+                                <span className="sr-only">Cart</span>
+                            </button>
+                        )}
                     </div>
                 </div>
             )}
@@ -123,4 +146,4 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
     );
 }
 
-export default React.memo(NavBar);
+export default NavBar;

@@ -44,6 +44,14 @@ const routes = [
                 path: "cart",
                 element: <Cart />,
             },
+            {
+                path: "account",
+                element: (
+                    <ContextProvider>
+                        <Account />
+                    </ContextProvider>
+                ),
+            },
         ]
     },
     {
@@ -54,14 +62,7 @@ const routes = [
             </ContextProvider>
         ),
     },
-    {
-        path: "/account",
-        element: (
-            <ContextProvider>
-                <Account />
-            </ContextProvider>
-        ),
-    },
+    
 ]
 
 export default routes;
