@@ -231,7 +231,7 @@ function Cart({
                               {editingInstructions === orderItem.id ? (
                                 <div>
                                   <textarea
-                                    className="w-full border rounded-md p-2 text-sm"
+                                    className="w-full border rounded-md p-2 text-sm text-black"
                                     placeholder="Enter special instructions..."
                                     value={instructions}
                                     onChange={(e) => setInstructions(e.target.value)}
