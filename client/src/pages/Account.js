@@ -135,99 +135,99 @@ function Account({ openAccount, setOpenAccount}) {
                   </div>
 
                   <div className="mt-6">
-                    <form onSubmit={formik.handleSubmit} className="space-y-6">
-                      {/* First Name */}
-                      <div>
-                        <label htmlFor="firstName" className="block text-lg font-medium text-gray-700">
-                          First Name
-                        </label>
-                        <input
-                          id="firstName"
-                          name="firstName"
-                          type="text"
-                          placeholder={currentUser.first_name || ''}
-                          value={formik.values.firstName}
-                          onChange={formik.handleChange}
-                          className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg"
-                        />
-                        {formik.errors.firstName && (
-                          <p className="mt-2 text-lg text-red-600">{formik.errors.firstName}</p>
-                        )}
-                      </div>
+                  <form onSubmit={formik.handleSubmit} className="space-y-6">
+  {/* First Name */}
+  <div>
+    <label htmlFor="firstName" className="block text-lg font-medium text-gray-700">
+      First Name
+    </label>
+    <input
+      id="firstName"
+      name="firstName"
+      type="text"
+      placeholder={currentUser.first_name || ''}
+      value={formik.values.firstName}
+      onChange={formik.handleChange}
+      className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg text-black placeholder:text-gray-400 px-3"
+    />
+    {formik.errors.firstName && (
+      <p className="mt-2 text-lg text-red-600">{formik.errors.firstName}</p>
+    )}
+  </div>
 
-                      {/* Last Name */}
-                      <div>
-                        <label htmlFor="lastName" className="block text-lg font-medium text-gray-700">
-                          Last Name
-                        </label>
-                        <input
-                          id="lastName"
-                          name="lastName"
-                          type="text"
-                          placeholder={currentUser.last_name || ''}
-                          value={formik.values.lastName}
-                          onChange={formik.handleChange}
-                          className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg"
-                        />
-                        {formik.errors.lastName && (
-                          <p className="mt-2 text-lg text-red-600">{formik.errors.lastName}</p>
-                        )}
-                      </div>
+  {/* Last Name */}
+  <div>
+    <label htmlFor="lastName" className="block text-lg font-medium text-gray-700">
+      Last Name
+    </label>
+    <input
+      id="lastName"
+      name="lastName"
+      type="text"
+      placeholder={currentUser.last_name || ''}
+      value={formik.values.lastName}
+      onChange={formik.handleChange}
+      className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg text-black placeholder:text-gray-400 px-3"
+    />
+    {formik.errors.lastName && (
+      <p className="mt-2 text-lg text-red-600">{formik.errors.lastName}</p>
+    )}
+  </div>
 
-                      {/* Phone Number */}
-                      <div>
-                        <label htmlFor="phoneNumber" className="block text-lg font-medium text-gray-700">
-                          Phone Number
-                        </label>
-                        <input
-                          id="phoneNumber"
-                          name="phoneNumber"
-                          type="text"
-                          placeholder={currentUser.phone_number || ''}
-                          value={formik.values.phoneNumber}
-                          onChange={formik.handleChange}
-                          className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg"
-                        />
-                        {formik.errors.phoneNumber && (
-                          <p className="mt-2 text-lg text-red-600">{formik.errors.phoneNumber}</p>
-                        )}
-                      </div>
+  {/* Phone Number */}
+  <div>
+    <label htmlFor="phoneNumber" className="block text-lg font-medium text-gray-700">
+      Phone Number
+    </label>
+    <input
+      id="phoneNumber"
+      name="phoneNumber"
+      type="text"
+      placeholder={currentUser.phone_number || ''}
+      value={formik.values.phoneNumber}
+      onChange={formik.handleChange}
+      className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg text-black placeholder:text-gray-400 px-3"
+    />
+    {formik.errors.phoneNumber && (
+      <p className="mt-2 text-lg text-red-600">{formik.errors.phoneNumber}</p>
+    )}
+  </div>
 
-                      {/* Email */}
-                      <div>
-                        <label htmlFor="email" className="block text-lg font-medium text-gray-700">
-                          Email
-                        </label>
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          placeholder={currentUser.email || ''}
-                          value={formik.values.email}
-                          onChange={formik.handleChange}
-                          className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg"
-                        />
-                        {formik.errors.email && (
-                          <p className="mt-2 text-lg text-red-600">{formik.errors.email}</p>
-                        )}
-                      </div>
+  {/* Email */}
+  <div>
+    <label htmlFor="email" className="block text-lg font-medium text-gray-700">
+      Email
+    </label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      placeholder={currentUser.email || ''}
+      value={formik.values.email}
+      onChange={formik.handleChange}
+      className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black text-lg text-black placeholder:text-gray-400 px-3"
+    />
+    {formik.errors.email && (
+      <p className="mt-2 text-lg text-red-600">{formik.errors.email}</p>
+    )}
+  </div>
 
-                    <div className="mt-6 flex items-center justify-end">
-                        <button
-                            type="button"
-                            className="rounded-md border border-gray-300 bg-white px-6 py-3 text-lg font-medium text-gray-700 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
-                            onClick={() => setOpenAccount(false)}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-black py-3 px-6 text-lg font-medium text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
-                        >
-                            Save
-                        </button>
-                    </div>
-                  </form>
+  <div className="mt-6 flex items-center justify-end">
+    <button
+      type="button"
+      className="rounded-md border border-gray-300 bg-white px-6 py-3 text-lg font-medium text-gray-700 shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2"
+      onClick={() => setOpenAccount(false)}
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      className="ml-3 inline-flex justify-center rounded-md border border-transparent bg-black py-3 px-6 text-lg font-medium text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+    >
+      Save
+    </button>
+  </div>
+</form>
                 </div>
               </div>
 
