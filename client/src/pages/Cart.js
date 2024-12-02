@@ -14,10 +14,7 @@ function Cart({
     currentOrder,
     orderType,
     selectedDate,
-    setSelectedDate,
     selectedTime,
-    setSelectedTime,
-    getDefaultTime,
     onPlaceOrder,
     onUpdateQuantity,
     onDeleteOrderItem,
@@ -30,7 +27,6 @@ function Cart({
   const orderItems = currentOrder[0]?.order_items || [];
   const orderPrice = currentOrder[0]?.total_price || 0;
   const orderId = currentOrder[0]?.id || null;
-  const currentDate = new Date().toISOString().split("T")[0]; // Get current date in 'YYYY-MM-DD' format
   const pickupTime = `${selectedDate}T${selectedTime}:00`;  
   
   function handlePlaceOrder(id) {
@@ -65,12 +61,7 @@ function Cart({
       .then((placedOrder) => {
         console.log("Order successfully placed:", placedOrder);
         onPlaceOrder(placedOrder);
-        // setSelectedDate(currentDate);
-        // setSelectedTime(getDefaultTime());
-
-        // Show confirmation popup
         setShowConfirmationPopup(true);
-        // setTimeout(() => setShowConfirmationPopup(false), 3000); // Hide after 3 seconds
       })
       .catch((error) => {
         console.error("Error placing order:", error);
@@ -91,8 +82,8 @@ function Cart({
       } else {
         throw new Error('Failed to delete');
       }
-    })
-  }
+    });
+  };
 
   function handleAddInstructions(orderItemId) {
     // Submit the special instructions
@@ -117,7 +108,7 @@ function Cart({
         setInstructions(''); // Clear input
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   function handleUpdateQuantity(orderItemId, newQuantity) {
     fetch(`/orderitems/${orderItemId}`, {
@@ -142,7 +133,7 @@ function Cart({
         onUpdateQuantity(updatedOrderItem)
       })
       .catch((error) => console.error(error));
-  }
+  };
 
   return (
     <Dialog open={openCart} onClose={setOpenCart} className="relative z-10">
@@ -320,7 +311,7 @@ function Cart({
       </div>
     </Dialog>
   )
-}
+};
 
 export default Cart;
 

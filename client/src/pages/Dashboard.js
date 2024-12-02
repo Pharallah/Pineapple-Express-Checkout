@@ -13,18 +13,16 @@ function Dashboard() {
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
 
   const currentDate = new Date().toISOString().split("T")[0]; //'YYYY-MM-DD' format
-  // Create a new Date object from the string
   const date = new Date(selectedDate);
-  const timeParts = selectedTime.split(":");
 
-  // Format the date using Intl.DateTimeFormat
   const formattedDate = new Intl.DateTimeFormat('en-US', {
-    weekday: 'short', // Full weekday name
+    weekday: 'short', // Abbv weekday name
     year: 'numeric', // Full year
     month: 'long',   // Full month name
     day: 'numeric',  // Day of the month
   }).format(date).replace(',', '');
 
+  const timeParts = selectedTime.split(":");
   date.setHours(timeParts[0], timeParts[1]); // Set the hours and minutes
   // Format the time using Intl.DateTimeFormat
   const formattedTime = new Intl.DateTimeFormat('en-US', {
@@ -32,9 +30,6 @@ function Dashboard() {
     minute: 'numeric',
     hour12: true, // Use 12-hour format
   }).format(date);
-
-  console.log("SELECTED TIME", selectedTime)
-  console.log("SELECTED DATE", selectedDate)
 
   function handleOpenCart() {
     setOpenCart(true);

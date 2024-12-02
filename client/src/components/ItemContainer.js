@@ -62,8 +62,8 @@ function ItemContainer() {
         .then((newOrder) => {
             onNewOrder(newOrder);
             createOrderItem(newOrder, itemId);
-        })
-    }
+        });
+    };
 
     function createOrderItem(order, itemId) {
         fetch('/orderitems', {
@@ -83,8 +83,8 @@ function ItemContainer() {
         })
         .then((newOrderItem) => {
             onNewOrderItem(newOrderItem)
-        })
-    }
+        });
+    };
 
     function updateOrderItem(orderItem) {
         fetch(`/orderitems/${orderItem.id}`, {
@@ -103,8 +103,8 @@ function ItemContainer() {
         })
         .then((order)=> {
             onUpdateOrderItem(order)
-        })
-    }
+        });
+    };
 
     function onAddItemClick(e, itemId) {
         e.preventDefault();

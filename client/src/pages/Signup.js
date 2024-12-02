@@ -8,8 +8,8 @@ import { Link } from 'react-router-dom';
 import logo from '../assets/logo.jpg'
 
 function Signup() {
-  const navigate = useNavigate()
-  const { setCurrentUser, onSignup, recalculateCurrentOrder, updatePastHistory } = useContext(Context)
+  const navigate = useNavigate();
+  const { setCurrentUser, onSignup, recalculateCurrentOrder, updatePastHistory } = useContext(Context);
   
   const formSchema = yup.object().shape({
     username: yup
@@ -38,7 +38,7 @@ function Signup() {
     .string()
     .required('Confirm Password is required')
     .oneOf([yup.ref('password')], 'Passwords must match')
-  })
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -73,9 +73,9 @@ function Signup() {
       })
       .catch(error => {
         console.error('Error:', error)
-      })
+      });
     }
-  })
+  });
 
   function loginAfterSignup(customer, password) {
     fetch('/login', {
@@ -102,8 +102,9 @@ function Signup() {
           updatePastHistory(authenticatedUser);
           navigate('/');
         };   
-      })
-  }
+      }
+    );
+  };
   
   return (
     <>

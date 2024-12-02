@@ -9,7 +9,7 @@ import { useContext } from "react";
 import { Context } from "../context/Context";
 
 function App() {
-  const { currentUser } = useContext(Context)
+  const { currentUser } = useContext(Context);
 
   return (
         <Routes>

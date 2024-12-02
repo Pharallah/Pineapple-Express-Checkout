@@ -3,7 +3,7 @@ import { Context } from '../context/Context';
 import NavBar from '../components/NavBar';
 
 function OrderHistory() {
-  const { currentUser, pastOrders } = useContext(Context);
+  const { pastOrders } = useContext(Context);
   const [expandedOrderId, setExpandedOrderId] = useState(null); // Track expanded order
 
   const toggleExpand = (orderId) => {

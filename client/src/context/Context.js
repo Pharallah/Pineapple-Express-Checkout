@@ -1,8 +1,8 @@
-import React from 'react'
-import { createContext } from 'react'
-import { useState, useEffect } from 'react'
+import React from 'react';
+import { createContext } from 'react';
+import { useState, useEffect } from 'react';
 
-const Context = createContext()
+const Context = createContext();
 const currentDate = new Date().toISOString().split("T")[0]; //'YYYY-MM-DD' format
 
 function ContextProvider({ children }) {
@@ -14,19 +14,15 @@ function ContextProvider({ children }) {
     const [items, setItems] = useState([]);
     const [currentUser, setCurrentUser] = useState(false);
     const [currentOrder, setCurrentOrder] = useState([]);
-
     const [orderType, setOrderType] = useState("Take-Out");
     const [isModalOpen, setModalOpen] = useState(false);
-    
     const [selectedDate, setSelectedDate] = useState(currentDate);
     const [selectedTime, setSelectedTime] = useState(getDefaultTime());
     
-    
-
     // Updates currentUser via changes to orders & orderItems
     useEffect(() => {
         updateCurrentUser();
-    }, [orders, orderItems])
+    }, [orders, orderItems]);
 
     // Guards recalculateCurrentOrder from changes in currentUser being executed anywhere outside of updateCurrentUser (i.e. Signup & Login)
     useEffect(() => {
@@ -40,17 +36,17 @@ function ContextProvider({ children }) {
             .then((res) => {
                 if (res.ok) {
                     return res.json();
-                }
+                };
             })
             .then((user) => {
                 setCurrentUser(user);
                 if (user) {
                     recalculateCurrentOrder(user); // Works because recalculateCurrentOrder is getting its source from the server
                     updatePastHistory(user);
-                }
+                };
             })
             .catch((err) => console.error("Error fetching current user:", err));
-    }
+    };
 
     function recalculateCurrentOrder(user) {
         if (
@@ -65,7 +61,7 @@ function ContextProvider({ children }) {
         const pendingOrder = user.orders.find((order) => order.order_status === "Pending Checkout");
 
         setCurrentOrder(pendingOrder ? [pendingOrder] : []);
-    }
+    };
 
     function updatePastHistory(user) {
         fetch(`/order_history/${user.id}`)
@@ -77,8 +73,8 @@ function ContextProvider({ children }) {
             }
             
         })
-        .then((orders) => setPastOrders(orders))
-    }
+        .then((orders) => setPastOrders(orders));
+    };
 
     function getDefaultTime() {
         const now = new Date();
@@ -88,7 +84,7 @@ function ContextProvider({ children }) {
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         return `${hours}:${minutes}`;
-    }
+    };
 
     //  *********************************************************
     
@@ -103,8 +99,8 @@ function ContextProvider({ children }) {
         })
         .then(customers => {
             setCustomers(customers);
-        })
-    }, [])
+        });
+    }, []);
 
     // setOrders
     useEffect(() => {
@@ -115,8 +111,8 @@ function ContextProvider({ children }) {
                 }
                 return res.json();
             })
-            .then(orders => setOrders(orders))
-    }, [orderItems])
+            .then(orders => setOrders(orders));
+    }, [orderItems]);
 
     // setOrderItems
     useEffect(() => {
@@ -127,8 +123,8 @@ function ContextProvider({ children }) {
                 }
                 return res.json();
             })
-            .then(orderItems => setOrderItems(orderItems))
-    }, [])
+            .then(orderItems => setOrderItems(orderItems));
+    }, []);
 
     // setCategories
     useEffect(() => {
@@ -140,7 +136,7 @@ function ContextProvider({ children }) {
                 return res.json();
             })
             .then(categories => setCategories(categories))
-    }, [])
+    }, []);
     
     // setItems
     useEffect(() => {
@@ -148,11 +144,11 @@ function ContextProvider({ children }) {
             .then(res => {
                 if (!res.ok) {
                     throw new Error(`HTTP error! status: ${res.status}`);
-                }
+                };
                 return res.json();
             })
-            .then(items => setItems(items))
-    }, [])
+            .then(items => setItems(items));
+    }, []);
 
     // ************* CALLBACK FUNCTIONS *******************
 
@@ -160,41 +156,41 @@ function ContextProvider({ children }) {
         const updatedCustomers = [
             ...customers,
             newCustomer
-        ]
-        setCustomers(updatedCustomers)
-    }
+        ];
+        setCustomers(updatedCustomers);
+    };
 
     function onNewOrder(newOrder) {
         const updatedOrders = [
             ...orders,
             newOrder
-        ]
-        setOrders(updatedOrders)
-    }
+        ];
+        setOrders(updatedOrders);
+    };
 
     function onNewOrderItem(newOrderItem) {
         const updatedOrderItems = [
             ...orderItems,
             newOrderItem
-        ]
-        setOrderItems(updatedOrderItems)
-    }
+        ];
+        setOrderItems(updatedOrderItems);
+    };
 
     function onUpdateOrderItem(updatedOrder) {
         const updatedOrderItems = orderItems.map((item) => {
             if (item.id === updatedOrder.id) {
-                return updatedOrder
+                return updatedOrder;
             } else {
-                return item
-            }
-        })
-        setOrderItems(updatedOrderItems)
-    }
+                return item;
+            };
+        });
+        setOrderItems(updatedOrderItems);
+    };
 
     function onDeleteOrderItem(id) {
-        const updatedOrderItems = orderItems.filter((item) => item.id !== id)
+        const updatedOrderItems = orderItems.filter((item) => item.id !== id);
         setOrderItems(updatedOrderItems);
-    }
+    };
   
     function onPlaceOrder(updatedOrder) {
         const updatedOrders = orders.map((order) => {
@@ -205,15 +201,17 @@ function ContextProvider({ children }) {
             }
         })
         setOrders(updatedOrders);
-    }
+    };
 
     function onUpdateQuantity(updatedOrderItem) {
-        const updatedOrderItems = orderItems.map((item) => item.id === updatedOrderItem.id ? updatedOrderItem : item)
-        setOrderItems(updatedOrderItems)
-    }
+        const updatedOrderItems = orderItems.map((item) => item.id === updatedOrderItem.id ? updatedOrderItem : item);
+        setOrderItems(updatedOrderItems);
+    };
+
     return <Context.Provider value={
         {
-            currentUser, setCurrentUser, updateCurrentUser,
+            currentUser, setCurrentUser,
+            updateCurrentUser,
             currentOrder, recalculateCurrentOrder, 
             customers, setCustomers, 
             orders, setOrders, updatePastHistory,
@@ -231,7 +229,7 @@ function ContextProvider({ children }) {
             selectedTime, setSelectedTime,
             getDefaultTime
         }
-    }>{children}</Context.Provider>
-}
+    }>{children}</Context.Provider>;
+};
 
-export { Context, ContextProvider }
+export { Context, ContextProvider };
