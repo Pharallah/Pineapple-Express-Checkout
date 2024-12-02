@@ -33,7 +33,6 @@ function Dashboard() {
     hour12: true, // Use 12-hour format
   }).format(date);
 
-
   console.log("SELECTED TIME", selectedTime)
   console.log("SELECTED DATE", selectedDate)
 

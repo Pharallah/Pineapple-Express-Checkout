@@ -120,7 +120,7 @@ function Account({ openAccount, setOpenAccount}) {
                 <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
                   <div className="flex items-start justify-between">
                     <DialogTitle className="text-2xl font-medium text-gray-900">{
-                        currentUser ? `Welcome, ${currentUser.username}`  : "Welcome"
+                        currentUser ? `Welcome, ${currentUser.username}!`  : "Welcome"
                         }</DialogTitle>
                     <div className="ml-3 flex h-7 items-center">
                       <button

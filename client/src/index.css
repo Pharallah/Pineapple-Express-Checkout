@@ -13,3 +13,9 @@
   position: relative;
   z-index: 10; /* Ensure it's above other elements */
 }
+
+html, body {
+  @apply bg-black text-white min-h-screen; /* Use Tailwind utilities */
+  margin: 0;
+  padding: 0;
+}

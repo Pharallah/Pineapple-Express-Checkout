@@ -5,6 +5,7 @@ import { Context } from '../context/Context';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
+import logo from '../assets/logo.jpg'
 
 function Signup() {
   const navigate = useNavigate()
@@ -106,101 +107,98 @@ function Signup() {
   
   return (
     <>
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 bg-black text-white">
+        <div className="lg:mx-auto sm:w-full sm:max-w-md">
           <img
             alt="Your Company"
-            src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-            className="mx-auto h-10 w-auto"
+            src={logo}
+            className="mx-auto h-60 w-auto"
           />
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-            Create An Account        
+          <h2 className="text-center text-3xl font-bold tracking-tight">
+            Create An Account
           </h2>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={formik.handleSubmit} className="space-y-6">
-          <div>
-              <label htmlFor="username" className="block text-sm/6 font-medium text-gray-900">
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+          <form onSubmit={formik.handleSubmit} className="space-y-8">
+            <div>
+              <label htmlFor="username" className="block text-lg font-medium">
                 Username
               </label>
-              <div className="mt-2">
+              <div className="mt-3">
                 <input
                   id="username"
                   name="username"
                   type="username"
                   required
                   autoComplete="username"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 py-2 px-3 text-lg bg-gray-800 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                   onChange={formik.handleChange}
                   value={formik.values.username}
                 />
               </div>
-              <p className="block text-sm font-medium text-red-600 mb-1">
+              <p className="block text-lg text-red-500 mt-2">
                 {formik.errors.username}
               </p>
             </div>
+
             <div>
-              <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                Email address
+              <label htmlFor="email" className="block text-lg font-medium">
+                Email Address
               </label>
-              <div className="mt-2">
+              <div className="mt-3">
                 <input
                   id="email"
                   name="email"
                   type="email"
                   required
                   autoComplete="email"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 py-2 px-3 text-lg bg-gray-800 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                   onChange={formik.handleChange}
                   value={formik.values.email}
                 />
               </div>
-              <p className="block text-sm font-medium text-red-600 mb-1">
+              <p className="block text-lg text-red-500 mt-2">
                 {formik.errors.email}
               </p>
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                  Password
-                </label>
-              </div>
-              <div className="mt-2">
+              <label htmlFor="password" className="block text-lg font-medium">
+                Password
+              </label>
+              <div className="mt-3">
                 <input
                   id="password"
                   name="password"
                   type="password"
                   required
                   autoComplete="current-password"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 py-2 px-3 text-lg bg-gray-800 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                   onChange={formik.handleChange}
                   value={formik.values.password}
                 />
               </div>
-              <p className="block text-sm font-medium text-red-600 mb-1">
+              <p className="block text-lg text-red-500 mt-2">
                 {formik.errors.password}
               </p>
             </div>
 
             <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="confirmPassword" className="block text-sm/6 font-medium text-gray-900">
-                  Confirm Password
-                </label>
-              </div>
-              <div className="mt-2">
+              <label htmlFor="confirmPassword" className="block text-lg font-medium">
+                Confirm Password
+              </label>
+              <div className="mt-3">
                 <input
                   id="confirmPassword"
                   name="confirmPassword"
                   type="password"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                  className="block w-full rounded-md border-0 py-2 px-3 text-lg bg-gray-800 text-white shadow-sm ring-1 ring-inset ring-gray-600 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-500"
                   onChange={formik.handleChange}
                   value={formik.values.confirmPassword}
                 />
               </div>
-              <p className="block text-sm font-medium text-red-600 mb-1">
+              <p className="block text-lg text-red-500 mt-2">
                 {formik.errors.confirmPassword}
               </p>
             </div>
@@ -208,15 +206,15 @@ function Signup() {
             <div>
               <button
                 type="submit"
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="flex w-full justify-center rounded-md bg-green-700 px-4 py-2 text-lg font-semibold text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-800"
               >
                 Create Account
               </button>
             </div>
           </form>
-          <div className="mt-4 text-center text-sm text-gray-600">
+          <div className="mt-6 text-center text-lg">
             Already have an account? {''}
-            <Link to="/login" className="text-blue-500 hover:text-blue-700">Log in</Link>
+            <Link to="/login" className="text-blue-400 hover:text-blue-500">Log In</Link>
           </div>
         </div>
       </div>

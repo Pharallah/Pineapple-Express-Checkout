@@ -28,7 +28,7 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
                     <div className="flex items-center">
                         <NavLink to="/dashboard">
                             <img
-                                alt="Your Company"
+                                alt="Parilya Logo"
                                 src={logo}
                                 className="h-32 max-h-full w-auto cursor-pointer"
                             />
