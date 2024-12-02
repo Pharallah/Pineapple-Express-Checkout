@@ -139,7 +139,7 @@ function Signup() {
                 />
               </div>
               <p className="block text-lg text-red-500 mt-2">
-                {formik.errors.username}
+                {formik.touched.username && formik.errors.username}
               </p>
             </div>
 
@@ -160,7 +160,7 @@ function Signup() {
                 />
               </div>
               <p className="block text-lg text-red-500 mt-2">
-                {formik.errors.email}
+                {formik.touched.email && formik.errors.email}
               </p>
             </div>
 
@@ -181,7 +181,7 @@ function Signup() {
                 />
               </div>
               <p className="block text-lg text-red-500 mt-2">
-                {formik.errors.password}
+                {formik.touched.password && formik.errors.password}
               </p>
             </div>
 
@@ -200,7 +200,7 @@ function Signup() {
                 />
               </div>
               <p className="block text-lg text-red-500 mt-2">
-                {formik.errors.confirmPassword}
+                {formik.touched.confirmPassword && formik.errors.confirmPassword}
               </p>
             </div>
 
