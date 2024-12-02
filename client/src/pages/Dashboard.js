@@ -46,44 +46,52 @@ function Dashboard() {
 
   return (
     <>
-      <NavBar handleOpenCart={handleOpenCart} handleOpenAccount={handleOpenAccount}/>
-      <ItemContainer/>
+      <div className="min-h-screen bg-black text-white">
 
-      {openCart && <Cart openCart={openCart} setOpenCart={setOpenCart} setShowConfirmationPopup={setShowConfirmationPopup}/>}
+        <NavBar 
+        handleOpenCart={handleOpenCart} 
+        handleOpenAccount={handleOpenAccount}
+        />
+        <div className="pt-8 bg-white text-black">
+          <ItemContainer />
 
-      {openAccount && <Account openAccount={openAccount} setOpenAccount={setOpenAccount}/>}
+          {openCart && <Cart openCart={openCart} setOpenCart={setOpenCart} setShowConfirmationPopup={setShowConfirmationPopup}/>}
+
+          {openAccount && <Account openAccount={openAccount} setOpenAccount={setOpenAccount}/>}
 
 
-      {/* Confirmation Popup */}
-      {showConfirmationPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-md shadow-lg p-6 w-100 text-center">
+          {/* Confirmation Popup */}
+          {showConfirmationPopup && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-md shadow-lg p-6 w-100 text-center">
 
-            <h2 className="text-xl font-bold mb-6">
-              Order Placed Successfully!
-            </h2>
+                <h2 className="text-xl font-bold mb-6">
+                  Order Placed Successfully!
+                </h2>
 
-            <p className="text-gray-700 mb-6">
-              Your order is confirmed for in-store pickup at <br></br><br></br><b>{formattedTime}</b> {selectedDate === currentDate ? "today!" : <>on <b>{formattedDate}</b></>}
-            </p>
+                <p className="text-gray-700 mb-6">
+                  Your order is confirmed for in-store pickup at <br></br><br></br><b>{formattedTime}</b> {selectedDate === currentDate ? "today!" : <>on <b>{formattedDate}</b></>}
+                </p>
 
-            <p className="text-gray-700 mb-6 font-bold">
-              Address: 8155 Columbia Rd, Olmsted Falls, OH 44138
-            </p>
-            
-            <p className="text-gray-700 mb-6">
-              Thank you & see you again!
-            </p>
+                <p className="text-gray-700 mb-6 font-bold">
+                  Address: 8155 Columbia Rd, Olmsted Falls, OH 44138
+                </p>
+                
+                <p className="text-gray-700 mb-6">
+                  Thank you & see you again!
+                </p>
 
-            <button
-              onClick={() => setShowConfirmationPopup(false)}
-              className="bg-black text-white px-6 py-2 mt-1 rounded-md hover:bg-gray-800 transition"
-            >
-              OK
-            </button>
-          </div>
+                <button
+                  onClick={() => setShowConfirmationPopup(false)}
+                  className="bg-black text-white px-6 py-2 mt-1 rounded-md hover:bg-gray-800 transition"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </>
   )
 }

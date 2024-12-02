@@ -15,7 +15,14 @@
 }
 
 html, body {
-  @apply bg-black text-white min-h-screen; /* Use Tailwind utilities */
+  @apply bg-black text-white; /* Background and text styles */
+  min-height: 100%; /* Cover full viewport height */
+  height: auto; /* Grow based on content */
   margin: 0;
   padding: 0;
 }
+
+#root, #app {
+  height: 100%; /* Ensure root container spans the viewport */
+}
+

@@ -11,7 +11,7 @@ function OrderHistory() {
   };
 
   return (
-    <>
+    <div className="min-h-screen bg-white text-black"> {/* White background and text color */}
       <NavBar />
       <div className="max-w-4xl mx-auto px-4 lg:px-8"> {/* Adjusted max-width */}
         {/* Check if there are any past orders */}
@@ -103,7 +103,7 @@ function OrderHistory() {
           </ul>
         )}
       </div>
-    </>
+    </div>
   );
 }
 

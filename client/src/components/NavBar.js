@@ -21,7 +21,7 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
     ];
 
     return (
-        <nav className="bg-black">
+        <nav className="bg-black h-auto relative z-10">
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                 <div className="relative flex h-50 items-center justify-between">
                     {/* Brand Logo */}
