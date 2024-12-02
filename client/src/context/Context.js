@@ -3,9 +3,9 @@ import { createContext } from 'react'
 import { useState, useEffect } from 'react'
 
 const Context = createContext()
+const currentDate = new Date().toISOString().split("T")[0]; //'YYYY-MM-DD' format
 
 function ContextProvider({ children }) {
-    const currentDate = new Date().toISOString().split("T")[0]; //'YYYY-MM-DD' format
     const [customers, setCustomers] = useState([]);
     const [orders, setOrders] = useState([]);
     const [pastOrders, setPastOrders] = useState([]);
@@ -19,8 +19,10 @@ function ContextProvider({ children }) {
     const [isModalOpen, setModalOpen] = useState(false);
     
     const [selectedDate, setSelectedDate] = useState(currentDate);
-    const [selectedTime, setSelectedTime] = useState("12:00");
+    const [selectedTime, setSelectedTime] = useState(getDefaultTime());
     
+    
+
     // Updates currentUser via changes to orders & orderItems
     useEffect(() => {
         updateCurrentUser();
@@ -76,6 +78,16 @@ function ContextProvider({ children }) {
             
         })
         .then((orders) => setPastOrders(orders))
+    }
+
+    function getDefaultTime() {
+        const now = new Date();
+        now.setHours(now.getHours() + 1); // Add 1 hour to the current time
+    
+        // Format the time as HH:mm
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        return `${hours}:${minutes}`;
     }
 
     //  *********************************************************
@@ -216,7 +228,8 @@ function ContextProvider({ children }) {
             orderType, setOrderType,
             isModalOpen, setModalOpen,
             selectedDate, setSelectedDate,
-            selectedTime, setSelectedTime
+            selectedTime, setSelectedTime,
+            getDefaultTime
         }
     }>{children}</Context.Provider>
 }

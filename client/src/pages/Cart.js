@@ -7,16 +7,17 @@ import { Context } from '../context/Context'
 
 function Cart({ 
   openCart, 
-  setOpenCart 
+  setOpenCart,
+  setShowConfirmationPopup 
 }) {
   const {
     currentOrder,
     orderType,
-    setOrderType,
     selectedDate,
     setSelectedDate,
     selectedTime,
     setSelectedTime,
+    getDefaultTime,
     onPlaceOrder,
     onUpdateQuantity,
     onDeleteOrderItem,
@@ -24,17 +25,13 @@ function Cart({
 
   const [editingInstructions, setEditingInstructions] = useState(null);
   const [instructions, setInstructions] = useState(''); // Tracks the current input value
+
   
   const orderItems = currentOrder[0]?.order_items || [];
   const orderPrice = currentOrder[0]?.total_price || 0;
   const orderId = currentOrder[0]?.id || null;
   const currentDate = new Date().toISOString().split("T")[0]; // Get current date in 'YYYY-MM-DD' format
   const pickupTime = `${selectedDate}T${selectedTime}:00`;  
-  
-  if (!currentOrder && !orderPrice && !orderId) {
-    return <div>Loading...</div>;
-  }
-  
   
   function handlePlaceOrder(id) {
     // Validate inputs
@@ -68,8 +65,12 @@ function Cart({
       .then((placedOrder) => {
         console.log("Order successfully placed:", placedOrder);
         onPlaceOrder(placedOrder);
-        setSelectedDate(currentDate)
-        setSelectedTime("12:00")
+        // setSelectedDate(currentDate);
+        // setSelectedTime(getDefaultTime());
+
+        // Show confirmation popup
+        setShowConfirmationPopup(true);
+        // setTimeout(() => setShowConfirmationPopup(false), 3000); // Hide after 3 seconds
       })
       .catch((error) => {
         console.error("Error placing order:", error);

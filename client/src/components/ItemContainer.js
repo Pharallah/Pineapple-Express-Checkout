@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Context } from '../context/Context';
 
 function ItemContainer() {
@@ -11,10 +11,6 @@ function ItemContainer() {
         selectedDate, setSelectedDate,
         selectedTime, setSelectedTime
     } = useContext(Context);
-
-    // useEffect(() => {
-        
-    // }, [orderType])
 
     const handleToggle = () => {
         setOrderType((prev) => (prev === "Take-Out" ? "Catering" : "Take-Out"));
@@ -223,20 +219,20 @@ function ItemContainer() {
 
                                         {/* Item Details */}
                                         <div className="mt-4 flex items-center justify-between">
-                                            {/* Item Name */}
-                                            <div>
-                                                <h3 className="text-sm font-bold text-gray-700">{item.name}</h3>
-                                                <p className="mt-1 text-lg font-medium text-gray-900">
-                                                    ${item.price}
-                                                </p>
-                                                
+                                            {/* Item Details */}
+                                            <div className="flex-1">
+                                                <h3 className="text-sm font-bold text-gray-700 break-words">
+                                                {item.name}
+                                                </h3>
+                                                <p className="mt-1 text-lg font-medium text-gray-900">${item.price}</p>
                                             </div>
+
                                             {/* Add Item Button */}
                                             <button
-                                                className="bg-red-500 text-white px-4 py-2 text-sm font-bold rounded-md hover:bg-red-600 transition"
+                                                className="bg-red-500 text-white px-4 py-2 mt-3 text-sm font-bold rounded-md hover:bg-red-600 transition flex-shrink-0"
                                                 aria-label={`Add ${item.name}`}
                                                 onClick={(e) => {
-                                                    onAddItemClick(e, item.id)
+                                                onAddItemClick(e, item.id);
                                                 }}
                                             >
                                                 Add Item

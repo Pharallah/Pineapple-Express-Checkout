@@ -40,18 +40,18 @@ const routes = [
             </ContextProvider>
         ),
         children: [
-            {
-                path: "cart",
-                element: <Cart />,
-            },
-            {
-                path: "account",
-                element: (
-                    <ContextProvider>
-                        <Account />
-                    </ContextProvider>
-                ),
-            },
+            // {
+            //     path: "cart",
+            //     element: <Cart />,
+            // },
+            // {
+            //     path: "account",
+            //     element: (
+            //         <ContextProvider>
+            //             <Account />
+            //         </ContextProvider>
+            //     ),
+            // },
         ]
     },
     {

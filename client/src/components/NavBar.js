@@ -23,18 +23,18 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
     return (
         <nav className="bg-black">
             <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                <div className="relative flex h-32 items-center justify-between">
+                <div className="relative flex h-50 items-center justify-between">
                     {/* Brand Logo */}
                     <div className="flex items-center">
                         <NavLink to="/dashboard">
                             <img
                                 alt="Your Company"
                                 src={logo}
-                                className="h-28 w-auto cursor-pointer"
+                                className="h-32 max-h-full w-auto cursor-pointer"
                             />
                         </NavLink>
-                        <h1 className="text-4xl font-bold text-white ml-6 font-serif">
-                            Pineapple Express Checkout
+                        <h1 className="text-6xl font-bold text-white ml-10 font-serif">
+                            ParaDine Express
                         </h1>
                     </div>
 
@@ -46,7 +46,7 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
                                     <button
                                         key={item.name}
                                         onClick={item.onClick}
-                                        className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+                                        className="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-lg font-medium"
                                     >
                                         {item.name}
                                     </button>
@@ -59,7 +59,7 @@ function NavBar({ handleOpenCart, handleOpenAccount }) {
                                                 isActive
                                                     ? 'bg-gray-900 text-white'
                                                     : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                                'rounded-md px-3 py-2 text-sm font-medium'
+                                                'rounded-md px-3 py-2 text-lg font-medium'
                                             )
                                         }
                                     >
