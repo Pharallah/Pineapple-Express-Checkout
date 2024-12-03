@@ -22,6 +22,7 @@ function OrderHistory() {
         ) : (
           <ul className="divide-y divide-gray-300">
             {pastOrders.map((order) => {
+              
               const pickupDate = new Date(order.pickup_time).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
