@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
 # Remote library imports
-from flask import request, make_response, abort, redirect, url_for
+from flask import request, make_response, abort
 from flask_restful import Resource
 from flask_login import login_user, logout_user, login_required, current_user
-from sqlalchemy import and_
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 
 # Local imports
 from config import app, db, api, login_manager
 # Add your model imports
 from models import Customer, Order, OrderItem, Category, Item
-from operations import datetime_formatter, custom_titled, capitalize_sentences
+from operations import custom_titled, capitalize_sentences
 
 # Flask-Login User Loader
 @login_manager.user_loader

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 # Standard library imports
-from random import randint, uniform, sample, choices, choice as rc
+from random import randint, sample, choices, choice as rc
 from datetime import datetime, timedelta
 
 # Remote library imports
@@ -11,8 +11,7 @@ from faker import Faker
 from app import app
 from models import db, Customer, Order, OrderItem, Category, Item
 from data import menu_items, categories, customers, fake_sentences
-from operations import pickup_time_randomizer, price_updater, datetime_formatter
-import logging
+
 
 def create_customers():
     seeded_customers = []

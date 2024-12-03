@@ -1,4 +1,4 @@
-from random import randint, uniform, choice as rc
+from random import randint
 from datetime import datetime, timedelta
 import re
 
