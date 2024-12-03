@@ -18,6 +18,7 @@ from operations import custom_titled, capitalize_sentences
 def load_user(customer_id):
     return db.session.get(Customer, int(customer_id))
 
+@login_required
 class CurrentUser(Resource):
     def get(self):
         if current_user.is_authenticated:
