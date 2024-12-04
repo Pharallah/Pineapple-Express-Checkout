@@ -12,9 +12,6 @@ from datetime import datetime, timedelta, timezone
 from operations import capitalize_sentences, is_valid_image_url
 from config import db, bcrypt
 
-class User(db.Model.SerializerMixin):
-    pass
-
 class Customer(db.Model, SerializerMixin):
     __tablename__ = "customers"
     serialize_rules = ('-_password_hash',)

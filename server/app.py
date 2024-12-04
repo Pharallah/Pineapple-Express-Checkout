@@ -18,8 +18,8 @@ from operations import custom_titled, capitalize_sentences
 def load_user(customer_id):
     return db.session.get(Customer, int(customer_id))
 
-@login_required
 class CurrentUser(Resource):
+    @login_required
     def get(self):
         if current_user.is_authenticated:
             user_dict = current_user.to_dict(rules=('-_password_hash', '-orders.customer'))
