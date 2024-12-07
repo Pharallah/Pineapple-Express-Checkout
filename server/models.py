@@ -172,6 +172,15 @@ class Order(db.Model, SerializerMixin):
     def total_price(self):
         return sum(order_item.item.price * order_item.quantity for order_item in self.order_items)
     
+    def to_dict(self, **kwargs):
+        # Use the default serialization
+        serialized_data = super().to_dict(**kwargs)
+        
+        # Add hybrid properties manually
+        serialized_data['total_price'] = float(self.total_price)
+        serialized_data['number_of_items'] = self.number_of_items
+        return serialized_data
+    
     @validates('customer_id')
     def validates_customer_id(self, key, id):
         customer = Customer.query.filter(Customer.id == id).first()
